@@ -248,6 +248,30 @@
 
   /* List */
   .list{display:flex;flex-direction:column;gap:9px}
+  #listTools{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+  .search-wrap{flex:1;position:relative;display:flex;align-items:center}
+  .search-ic{position:absolute;left:14px;font-size:13px;opacity:.55;pointer-events:none}
+  .search-input{width:100%;padding:12px 14px 12px 38px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2);color:var(--ink);font-size:14px;font-family:inherit;transition:border-color .15s}
+  .search-input:focus{outline:none;border-color:var(--accent)}
+  .layout-toggle{display:flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:3px;flex-shrink:0}
+  .lt{border:none;background:transparent;color:var(--muted);width:36px;height:34px;border-radius:10px;cursor:pointer;font-size:15px;transition:.15s}
+  .lt.on{background:var(--accent);color:var(--on-accent)}
+  .list.tile{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
+  .list.tile .job{grid-template-columns:auto minmax(0,1fr);gap:11px}
+  .list.tile .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 10px;margin-top:6px;white-space:normal}
+  .list.tile .j-actions{margin-top:2px}
+  .job.hi{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--surface-2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 22%,transparent),var(--shadow)}
+  .job.hi:hover{border-color:var(--accent)}
+  .tag.pri{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent-ink);font-weight:700}
+  .pri-star{font-size:13px}
+  .j-info{display:flex;flex-wrap:wrap;align-items:center;margin-top:7px;font-size:13px;color:var(--ink-soft)}
+  .j-info > span + span:not(.pay)::before{content:"·";margin:0 7px;color:var(--muted);opacity:.7}
+  .j-info .amt{color:var(--ink);font-weight:600}
+  .j-info .pay{margin-left:9px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px}
+  .pay.paid{background:color-mix(in srgb,var(--money) 15%,var(--surface));color:var(--money)}
+  .pay.unpaid{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--warn)}
+  .j-sub{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--muted)}
+  .j-sub .st{color:var(--ink-soft)}
   .job{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;box-shadow:var(--shadow);transition:transform .15s, border-color .15s, box-shadow .15s;position:relative}
   .job:hover{border-color:var(--muted);transform:translateY(-1px);box-shadow:0 2px 4px rgba(20,16,10,.07),0 14px 30px -16px rgba(20,16,10,.22)}
   .job.done{opacity:.62} .job.done .j-title{text-decoration:line-through;text-decoration-color:var(--muted)}
@@ -309,6 +333,9 @@
   .day-panel h3{font-family:'Gowun Batang',serif;font-size:17px;font-weight:700;margin-bottom:4px}
   .day-panel .dsum{font-size:12px;color:var(--muted);margin-bottom:14px}
   .day-list{display:flex;flex-direction:column;gap:8px}
+  .day-list .job{grid-template-columns:auto minmax(0,1fr);gap:10px;padding:14px 16px}
+  .day-list .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 10px;margin-top:4px;white-space:normal}
+  .day-list .j-actions{margin-top:0}
 
   /* Stats view (월별/주간) */
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
@@ -473,7 +500,7 @@
     <div class="spacer"></div>
     <div class="filters" id="filters"></div>
     <select class="sort" id="sortSel" onchange="render()">
-      <option value="deadline">마감 빠른순</option><option value="priority">우선순위순</option><option value="amount">금액 높은순</option><option value="created">등록 최신순</option>
+      <option value="deadline" selected>마감 빠른순</option><option value="reg">등록순</option><option value="created">최신순</option>
     </select>
     <button class="btn-add" id="addBtn" onclick="openForm()">＋ 작업 추가</button>
   </div>
@@ -495,6 +522,13 @@
   </div>
 
   <section id="calView"></section>
+  <div id="listTools" style="display:none">
+    <div class="search-wrap"><span class="search-ic">🔍</span><input id="searchInput" class="search-input" type="text" placeholder="제목, 의뢰인 검색…" oninput="onSearch(this.value)"></div>
+    <div class="layout-toggle">
+      <button id="lt-list" class="lt on" onclick="setLayout('list')" title="목록형">☰</button>
+      <button id="lt-tile" class="lt" onclick="setLayout('tile')" title="타일형">▦</button>
+    </div>
+  </div>
   <section id="listView" class="list" style="display:none"></section>
   <section id="statsView" style="display:none"></section>
   <section id="focusView" style="display:none"></section>
@@ -542,7 +576,7 @@
 
 <script>
 const STORE_KEY='work_jobs_v1', TIMER_KEY='work_timer_v1', SESS_KEY='work_sessions_v1';
-let jobs=[], sessions=[], view='cal', filter='전체', editingId=null, priorityPick='높음';
+let jobs=[], sessions=[], view='cal', filter='전체', editingId=null, priorityPick='높음', searchQ='', listLayout='list';
 let calMonth=(()=>{const d=new Date();return {y:d.getFullYear(),m:d.getMonth()};})();
 let calSel=null;
 let statPeriod='month', statY=new Date().getFullYear(), statM=new Date().getMonth();
@@ -600,48 +634,60 @@ function renderStats(){
   ];
   document.getElementById('stats').innerHTML=data.map(d=>`<div class="stat ${d.cls}"><span class="bar"></span><div class="lab">${d.lab}</div><div class="val">${d.val}${d.small?`<small> ${d.small}</small>`:''}</div></div>`).join('');
 }
-function thisWeekSecs(){ const ws=weekStartStr(todayStr()); return sessions.filter(s=>weekStartStr(s.date)===ws).reduce((a,s)=>a+s.secs,0); }
+function thisWeekSecs(){ const ws=weekStartStr(todayStr()); return Math.max(0, sessions.filter(s=>weekStartStr(s.date)===ws).reduce((a,s)=>a+s.secs,0)); }
 
 /* filters/list */
 function renderFilters(){ const opts=['전체','예약','진행','완료'],lab={전체:'전체',예약:'대기 예약',진행:'진행 중',완료:'완료'}; document.getElementById('filters').innerHTML=opts.map(o=>`<button class="chip ${filter===o?'active':''}" onclick="setFilter('${o}')">${lab[o]}</button>`).join(''); }
 function setFilter(f){ filter=f; render(); }
 function sortJobs(arr){ const sel=document.getElementById('sortSel').value,prio={높음:0,보통:1,낮음:2},a=[...arr];
   if(sel==='deadline')a.sort((x,y)=>(x.deadline||'9999').localeCompare(y.deadline||'9999'));
-  else if(sel==='priority')a.sort((x,y)=>prio[x.priority]-prio[y.priority]);
-  else if(sel==='amount')a.sort((x,y)=>netAmount(y)-netAmount(x));
-  else a.sort((x,y)=>(y.created||0)-(x.created||0)); return a; }
+  else if(sel==='priority')a.sort((x,y)=>prio[x.priority]-prio[y.priority]||(x.created||0)-(y.created||0));
+  else if(sel==='reg')a.sort((x,y)=>(x.created||0)-(y.created||0));
+  else a.sort((x,y)=>(y.created||0)-(x.created||0));
+  if(sel!=='priority'){ return [...a.filter(j=>j.priority==='높음'), ...a.filter(j=>j.priority!=='높음')]; }
+  return a; }
 function jobCard(j){
-  const dl=ddayLabel(j.deadline),done=j.status==='완료',net=netAmount(j),timing=activeTimer&&activeTimer.jobId===j.id;
-  return `<div class="job ${done?'done':''} ${timing?'timing':''}">
+  const dl=ddayLabel(j.deadline),done=j.status==='완료',net=netAmount(j),timing=activeTimer&&activeTimer.jobId===j.id,hi=j.priority==='높음'&&!done;
+  return `<div class="job ${done?'done':''} ${timing?'timing':''} ${hi?'hi':''}">
     <span class="pbar ${j.priority}"></span>
     <button class="check ${done?'on':''}" onclick="toggleDone('${j.id}')" title="완료 토글"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>
-    <div class="j-main"><div class="j-title">${esc(j.title)}</div><div class="j-meta">
-      ${j.client?`<span class="tag client">👤 ${esc(j.client)}</span>`:''}
-      ${j.site?`<span class="tag site">🏷 ${esc(j.site)}</span>`:''}
-      ${j.cat?`<span class="tag cat"># ${esc(j.cat)}</span>`:''}
-      <span class="tag stat-${j.status}">${j.status==='예약'?'대기':j.status==='진행'?'진행 중':'완료'}</span>
-      ${dl&&!done?`<span class="tag dday ${dl.cls}">${dl.t}</span>`:''}
-      ${j.deadline?`<span class="tag date">📅 ${j.deadline.slice(5).replace('-','/')}</span>`:''}
-    </div></div>
-    <div class="j-side">
-      ${net?`<div class="j-amt ${done?'':'unpaid'}">${won(net)}</div>`:''}
-      ${j.site==='크레페'&&Number(j.amount)?`<div class="j-hrs">크레페 수수료 -10%</div>`:''}
-      ${j.secs?`<div class="j-hrs">⏱ ${fmtHM(j.secs)}</div>`:''}
-      <div class="j-actions">
-        ${timing?`<span class="sync-btn j timing">⏱ <b id="cardTimer-${j.id}">${fmtHMS(timerSeconds())}</b></span>`:`<button class="sync-btn j timer" onclick="startTimer('${j.id}')">▶ 타이머</button>`}
-        ${j.deadline?`<button class="sync-btn j cal" onclick="openGcal('${j.id}')" title="구글 캘린더에 추가">📅</button>`:''}
-        <button class="icon-btn" onclick="openForm('${j.id}')">수정</button>
-        <button class="icon-btn del" onclick="delJob('${j.id}')">삭제</button>
+    <div class="j-main">
+      <div class="j-title">${hi?'<span class="pri-star">⭐</span> ':''}${esc(j.title)}</div>
+      <div class="j-info">
+        ${j.client?`<span>${esc(j.client)}</span>`:''}
+        ${j.site?`<span>${esc(j.site)}</span>`:''}
+        ${j.cat?`<span>${esc(j.cat)}</span>`:''}
+        ${net?`<span class="amt">${won(net)}</span>`:''}
+        <span class="pay ${done?'paid':'unpaid'}">${done?'입금':'미입금'}</span>
       </div>
-    </div></div>`;
+      <div class="j-sub">
+        <span>${j.deadline?j.deadline.replace(/-/g,'.'):'마감일 없음'}</span>
+        ${dl&&!done?`<span class="tag dday ${dl.cls}">${dl.t}</span>`:''}
+        ${!done?`<span class="st">${j.status==='예약'?'대기':'진행 중'}</span>`:''}
+        ${j.secs?`<span>⏱ ${fmtHM(j.secs)}</span>`:''}
+      </div>
+    </div>
+    <div class="j-side"><div class="j-actions">
+      ${timing?`<span class="sync-btn j timing">⏱ <b id="cardTimer-${j.id}">${fmtHMS(timerSeconds())}</b></span>`:`<button class="sync-btn j timer" onclick="startTimer('${j.id}')">▶ 타이머</button>`}
+      ${j.deadline?`<button class="sync-btn j cal" onclick="openGcal('${j.id}')" title="구글 캘린더에 추가">📅</button>`:''}
+      <button class="icon-btn" onclick="openForm('${j.id}')">수정</button>
+      <button class="icon-btn del" onclick="delJob('${j.id}')">삭제</button>
+    </div></div></div>`;
 }
-function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>j.status===filter); arr=sortJobs(arr);
+function onSearch(v){ searchQ=v; renderList(); }
+function setLayout(l){ listLayout=l; document.getElementById('lt-list').classList.toggle('on',l==='list'); document.getElementById('lt-tile').classList.toggle('on',l==='tile'); renderList(); }
+function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>j.status===filter);
+  const q=(searchQ||'').trim().toLowerCase();
+  if(q) arr=arr.filter(j=>(j.title||'').toLowerCase().includes(q)||(j.client||'').toLowerCase().includes(q));
+  arr=sortJobs(arr);
   const el=document.getElementById('listView');
-  if(!arr.length){ el.innerHTML=`<div class="empty"><div class="big">아직 등록된 작업이 없어요</div><div>오른쪽 위 <b>＋ 작업 추가</b>로 받은 일을 기록해 보세요.</div></div>`; return; }
+  el.className='list'+(listLayout==='tile'?' tile':'');
+  if(!arr.length){ el.style.display='block'; el.innerHTML=`<div class="empty"><div class="big">${q?'검색 결과가 없어요':'아직 등록된 작업이 없어요'}</div><div>${q?'다른 제목이나 의뢰인 이름으로 검색해 보세요.':'오른쪽 위 <b>＋ 작업 추가</b>로 받은 일을 기록해 보세요.'}</div></div>`; return; }
+  el.style.display=listLayout==='tile'?'grid':'flex';
   el.innerHTML=arr.map(jobCard).join(''); }
 
 /* calendar */
-function heatColor(secs){ if(!secs)return 'transparent'; const h=secs/3600; let p; if(h<0.5)p=10; else if(h<1)p=22; else if(h<2)p=38; else if(h<4)p=58; else p=80; return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`; }
+function heatColor(secs){ if(!secs||secs<0)return 'transparent'; const h=secs/3600; let p; if(h<0.5)p=10; else if(h<1)p=22; else if(h<2)p=38; else if(h<4)p=58; else p=80; return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`; }
 function renderCal(){
   const {y,m}=calMonth, first=new Date(y,m,1), startDow=first.getDay(), days=new Date(y,m+1,0).getDate();
   const dows=['일','월','화','수','목','금','토'], tStr=todayStr(), dmap=dailySecsMap();
@@ -669,7 +715,7 @@ function moveMonth(delta){ let{y,m}=calMonth; m+=delta; if(m<0){m=11;y--;} if(m>
 function renderDayPanel(){
   const el=document.getElementById('dayPanel'); if(!el)return;
   const ds=calSel||todayStr(); const dt=new Date(ds); const dows=['일','월','화','수','목','금','토'];
-  const dayJobs=sortJobs(jobs.filter(j=>j.deadline===ds)); const sec=dailySecsMap()[ds]||0;
+  const dayJobs=sortJobs(jobs.filter(j=>j.deadline===ds)); const sec=Math.max(0,dailySecsMap()[ds]||0);
   el.className='day-panel';
   el.innerHTML=`<h3>${dt.getMonth()+1}월 ${dt.getDate()}일 (${dows[dt.getDay()]})</h3>
     <div class="dsum">이 날 작업시간 ${fmtHM(sec)} · 마감 ${dayJobs.length}건</div>
@@ -682,7 +728,7 @@ function setStatPeriod(p){ statPeriod=p; renderStatsView(); }
 function statNav(d){ if(statPeriod==='month'){ statM+=d; if(statM<0){statM=11;statY--;} if(statM>11){statM=0;statY++;} } else if(statPeriod==='year'){ statY+=d; } renderStatsView(); }
 function wonShort(n){ n=Math.round(n||0); if(n>=10000){ const v=Math.round(n/1000)/10; return (v%1?v:Math.round(v))+'만'; } return n.toLocaleString('ko-KR'); }
 function periodJobs(){ return jobs.filter(j=>{ if(statPeriod==='all')return true; if(!j.deadline)return false; const y=+j.deadline.slice(0,4),m=+j.deadline.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }); }
-function periodSecs(){ return sessions.filter(s=>{ if(statPeriod==='all')return true; const y=+s.date.slice(0,4),m=+s.date.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }).reduce((a,s)=>a+s.secs,0); }
+function periodSecs(){ return Math.max(0, sessions.filter(s=>{ if(statPeriod==='all')return true; const y=+s.date.slice(0,4),m=+s.date.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }).reduce((a,s)=>a+s.secs,0)); }
 function barChart(items,colorClass,showVal){ const max=Math.max(1,...items.map(i=>i.val)); return `<div class="bars">${items.map(i=>`<div class="bar-col"><div class="bar-val">${showVal&&i.val?i.top:''}</div><div class="bar-v ${colorClass}" style="height:${i.val?Math.max(5,Math.round(i.val/max*82)):0}%" title="${i.lab}: ${i.top}"></div><div class="bar-lab">${i.lab}</div></div>`).join('')}</div>`; }
 function platformTable(pj){
   const m={}; pj.forEach(j=>{ const s=(j.site||'').trim()||'기타'; if(!m[s])m[s]={c:0,net:0}; m[s].c++; m[s].net+=netAmount(j); });
@@ -706,7 +752,7 @@ function renderStatsView(){
   const hasTrend=trend.some(t=>t.val>0);
   const trendText=trend.filter(t=>t.val>0).map(t=>{ const u=statPeriod==='year'?t.lab+'월':statPeriod==='all'?t.lab+'년':t.lab; return `${u} ${won(t.val)}`; }).join('  ·  ');
   const dmap=dailySecsMap(), dows=['일','월','화','수','목','금','토']; let sevenTotal=0; const seven=[];
-  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; const sec=dmap[ds]||0; sevenTotal+=sec; seven.push({lab:dows[d.getDay()],val:sec,top:sec?fmtHM(sec):''}); }
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; const sec=Math.max(0,dmap[ds]||0); sevenTotal+=sec; seven.push({lab:dows[d.getDay()],val:sec,top:sec?fmtHM(sec):''}); }
   document.getElementById('statsView').innerHTML=`
     <div class="stat-bar">
       <div class="seg-toggle">
@@ -748,6 +794,7 @@ function setView(v){ view=v;
   document.getElementById('focusView').style.display=v==='focus'?'block':'none';
   document.getElementById('clientView').style.display=v==='client'?'block':'none';
   document.querySelector('.filters').style.display=v==='list'?'inline-flex':'none';
+  document.getElementById('listTools').style.display=v==='list'?'flex':'none';
   document.getElementById('sortSel').style.display=v==='list'?'inline-block':'none';
   document.getElementById('addBtn').style.display=(v==='cal'||v==='list')?'inline-block':'none';
   document.getElementById('syncBars').style.display=(v==='cal'||v==='list')?'block':'none';
@@ -779,13 +826,17 @@ function saveForm(){
   const data={ title, client:document.getElementById('f_client').value.trim(), site:document.getElementById('f_site').value, cat:document.getElementById('f_cat').value,
     deadline:document.getElementById('f_deadline').value, status:document.getElementById('f_status').value, priority:priorityPick,
     secs:h*3600+mn*60, amount:Number(document.getElementById('f_amount').value)||0 };
-  let saved; if(editingId){ saved=jobs.find(x=>x.id===editingId); Object.assign(saved,data); } else { saved={id:uid(),created:Date.now(),...data}; jobs.push(saved); }
+  let saved, oldSecs=0;
+  if(editingId){ saved=jobs.find(x=>x.id===editingId); oldSecs=Number(saved.secs)||0; Object.assign(saved,data); }
+  else { saved={id:uid(),created:Date.now(),...data}; jobs.push(saved); }
+  const delta=data.secs-oldSecs;
+  if(delta!==0){ sessions.push({id:uid(),date:todayStr(),secs:Math.round(delta),jobId:saved.id}); saveSessions(); }
   saveJobs(); closeForm(); render(); syncUp(saved);
 }
 function toggleDone(id){ const j=jobs.find(x=>x.id===id); j.status=j.status==='완료'?'진행':'완료'; saveJobs(); render(); syncUp(j); }
 function delJob(id){ const j=jobs.find(x=>x.id===id); if(!confirm(`'${j.title}' 작업을 삭제할까요?`))return;
   if(activeTimer&&activeTimer.jobId===id){ activeTimer=null; clearInterval(timerInterval); timerInterval=null; saveTimerState(); renderTimerBar(); }
-  gcalDelete(j); jobs=jobs.filter(x=>x.id!==id); saveJobs(); render(); }
+  gcalDelete(j); jobs=jobs.filter(x=>x.id!==id); sessions=sessions.filter(s=>s.jobId!==id); saveSessions(); saveJobs(); render(); }
 
 /* commission timer */
 async function loadTimer(){ try{const r=await store.get(TIMER_KEY); activeTimer=r&&r.value?JSON.parse(r.value):null;}catch(e){activeTimer=null;} }
