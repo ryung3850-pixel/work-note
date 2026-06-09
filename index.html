@@ -204,7 +204,7 @@
   .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:24px}
   .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .stat .lab{font-size:11px;color:var(--muted)}
-  .stat .val{font-family:'Gowun Batang',serif;font-size:22px;font-weight:700;margin-top:6px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat .val{font-family:'Gowun Batang',serif;font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   .stat .val small{font-size:13px;font-weight:400;color:var(--muted)}
   .stat.money .val{color:var(--money)}
   .stat.pending .val{color:var(--accent-text)}
@@ -265,7 +265,9 @@
   .tag.pri{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent-ink);font-weight:700}
   .pri-star{font-size:13px}
   .j-info{display:flex;flex-wrap:wrap;align-items:center;margin-top:7px;font-size:13px;color:var(--ink-soft)}
-  .j-info > span + span:not(.pay)::before{content:"·";margin:0 7px;color:var(--muted);opacity:.7}
+  .j-info > span + span:not(.pay):not(.site2)::before{content:"·";margin:0 7px;color:var(--muted);opacity:.7}
+  .tag.site2{font-weight:700;margin-right:1px;background:var(--accent-soft);color:var(--accent-ink)}
+  .day-list .pay{display:none}
   .j-info .amt{color:var(--ink);font-weight:600}
   .j-info .pay{margin-left:9px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px}
   .pay.paid{background:color-mix(in srgb,var(--money) 15%,var(--surface));color:var(--money)}
@@ -326,9 +328,11 @@
   .cal-num{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;font-size:14px;font-weight:500;color:var(--ink)}
   .cal-cell.sun .cal-num{color:var(--sun)} .cal-cell.sat .cal-num{color:var(--sat)}
   .cal-cell.today .cal-num{background:var(--accent);color:var(--on-accent);font-weight:700}
-  .cal-dot{position:absolute;bottom:8px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .cal-dot{position:absolute;bottom:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
   .cal-legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:12px;font-size:11px;color:var(--muted)}
   .cal-legend .lg{width:15px;height:15px;border-radius:4px;border:1px solid var(--line-soft)}
+  .legend-reset{margin-left:auto;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .legend-reset:hover{border-color:var(--muted);color:var(--ink-soft)}
   .day-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
   .day-panel h3{font-family:'Gowun Batang',serif;font-size:17px;font-weight:700;margin-bottom:4px}
   .day-panel .dsum{font-size:12px;color:var(--muted);margin-bottom:14px}
@@ -446,7 +450,53 @@
   .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dock-bg);color:var(--dock-fg);padding:11px 20px;border-radius:11px;font-size:13px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s;z-index:90}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* 타이머 화면 */
+  .tgrid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+  .tlist{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .tlist-h{font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:2px}
+  .tproj{text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;transition:.15s;display:block;width:100%;font-family:inherit}
+  .tproj:hover{border-color:var(--muted)}
+  .tproj.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface-2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 25%,transparent)}
+  .tproj-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .tproj-title{font-weight:600;font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tproj-sub{font-size:12px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tproj-bar{height:4px;border-radius:3px;background:var(--line-soft);margin-top:9px;overflow:hidden}
+  .tproj-bar span{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .2s}
+  .tpane{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);min-width:0}
+  .tdetail-head{font-size:18px;font-weight:700;letter-spacing:-.01em;font-family:'Gowun Batang',serif;word-break:break-word}
+  .tstepper{display:flex;align-items:center;gap:6px;margin:18px 0 4px}
+  .tstep{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+  .tstep-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--surface-2);border:1.5px solid var(--line);color:var(--muted)}
+  .tstep.cur .tstep-n{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .tstep.done .tstep-n{background:color-mix(in srgb,var(--accent) 25%,var(--surface));color:var(--accent-ink);border-color:transparent}
+  .tstep-l{font-size:11px;color:var(--muted);white-space:nowrap}
+  .tstep.cur .tstep-l{color:var(--accent-text);font-weight:600}
+  .tstep-line{flex:1;height:2px;background:var(--line);border-radius:2px;margin-bottom:18px;min-width:12px}
+  .tbig{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:26px 16px;text-align:center;margin-top:16px}
+  .tbig-time{font-size:clamp(34px,9vw,48px);font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:var(--accent-text);line-height:1}
+  .tbig-acc{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .tbig-ctrl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+  .tbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:9px 16px;border-radius:11px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:.15s}
+  .tbtn:hover{border-color:var(--muted)}
+  .tbtn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .tbtn.stop{background:color-mix(in srgb,var(--money) 16%,var(--surface));color:var(--money);border-color:transparent}
+  .tbtn.ghost{background:transparent;color:var(--muted)}
+  .tbtn.sm{padding:7px 12px;font-size:12px}
+  .tbtn[disabled]{opacity:.4;cursor:default}
+  .tstage-panel{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .tstage-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+  .tstage-btns{display:flex;gap:6px;flex-wrap:wrap}
+  .tstage-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px}
+  .tstage-row.cur{background:color-mix(in srgb,var(--accent) 8%,var(--surface-2))}
+  .tstage-n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);flex-shrink:0}
+  .tstage-row.cur .tstage-n{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .tstage-row.done .tstage-n{background:color-mix(in srgb,var(--accent) 22%,var(--surface));color:var(--accent-ink);border-color:transparent}
+  .tstage-name{flex:1;font-size:13.5px;color:var(--ink);min-width:0}
+  .tstage-tag{font-size:11px;font-weight:600;color:var(--accent-text)}
+  .tstage-tag.ok{color:var(--money)}
   @media(max-width:880px){ #calView{grid-template-columns:1fr} #calView #dayPanel{position:static} #calView .cal-card{margin-bottom:0} }
+  @media(max-width:1080px){ .stats{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:760px){ .tgrid{grid-template-columns:1fr} }
   @media(max-width:820px){ .stats{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:560px){
     .wrap{padding:24px 14px 88px}
@@ -494,6 +544,7 @@
       <button class="tab active" data-view="cal" onclick="setView('cal')">달력</button>
       <button class="tab" data-view="list" onclick="setView('list')">목록</button>
       <button class="tab" data-view="stats" onclick="setView('stats')">통계</button>
+      <button class="tab" data-view="timer" onclick="setView('timer')">타이머</button>
       <button class="tab" data-view="focus" onclick="setView('focus')">집중</button>
       <button class="tab" data-view="client" onclick="setView('client')">신청자</button>
     </div>
@@ -531,6 +582,7 @@
   </div>
   <section id="listView" class="list" style="display:none"></section>
   <section id="statsView" style="display:none"></section>
+  <section id="timerView" style="display:none"></section>
   <section id="focusView" style="display:none"></section>
   <section id="clientView" style="display:none"></section>
 </div>
@@ -594,7 +646,7 @@ const store={
   async set(k,v){ if(typeof window!=='undefined'&&window.storage){try{return await window.storage.set(k,v);}catch(e){return null;}} try{localStorage.setItem(k,v);}catch(e){} return null; }
 };
 async function loadJobs(){ try{const r=await store.get(STORE_KEY); jobs=r&&r.value?JSON.parse(r.value):[];}catch(e){jobs=[];} normalize(); }
-function normalize(){ jobs.forEach(j=>{ if(j.secs===undefined) j.secs=j.hours?Math.round(j.hours*3600):0; if(j.client===undefined)j.client=''; delete j.hours; }); }
+function normalize(){ jobs.forEach(j=>{ if(j.secs===undefined) j.secs=j.hours?Math.round(j.hours*3600):0; if(j.client===undefined)j.client=''; if(j.stage===undefined)j.stage=0; delete j.hours; }); }
 let saveDebounce=null;
 async function saveJobs(){ const el=document.getElementById('saveState'),txt=document.getElementById('saveText'); el.classList.add('saving'); txt.textContent='저장 중…';
   try{ await store.set(STORE_KEY,JSON.stringify(jobs)); clearTimeout(saveDebounce); saveDebounce=setTimeout(()=>{el.classList.remove('saving');txt.textContent='자동 저장됨';},500);}catch(e){el.classList.remove('saving');txt.textContent='저장 실패';} }
@@ -646,6 +698,8 @@ function sortJobs(arr){ const sel=document.getElementById('sortSel').value,prio=
   else a.sort((x,y)=>(y.created||0)-(x.created||0));
   if(sel!=='priority'){ return [...a.filter(j=>j.priority==='높음'), ...a.filter(j=>j.priority!=='높음')]; }
   return a; }
+const SITE_STYLE={'크레페':['#fce4ea','#c0395f'],'윗치폼':['#ece6fb','#6f4fc0'],'아트머그':['#fbeada','#b56a1e'],'카카오톡':['#fbf0c4','#8a6a00'],'DM':['#e3ecfb','#3d6fce'],'Twitter':['#e0f0fb','#1f86c7']};
+function siteBadge(site){ if(!site)return ''; const c=SITE_STYLE[site]; return `<span class="tag site2"${c?` style="background:${c[0]};color:${c[1]}"`:''}>${esc(site)}</span>`; }
 function jobCard(j){
   const dl=ddayLabel(j.deadline),done=j.status==='완료',net=netAmount(j),timing=activeTimer&&activeTimer.jobId===j.id,hi=j.priority==='높음'&&!done;
   return `<div class="job ${done?'done':''} ${timing?'timing':''} ${hi?'hi':''}">
@@ -655,7 +709,7 @@ function jobCard(j){
       <div class="j-title">${hi?'<span class="pri-star">⭐</span> ':''}${esc(j.title)}</div>
       <div class="j-info">
         ${j.client?`<span>${esc(j.client)}</span>`:''}
-        ${j.site?`<span>${esc(j.site)}</span>`:''}
+        ${siteBadge(j.site)}
         ${j.cat?`<span>${esc(j.cat)}</span>`:''}
         ${net?`<span class="amt">${won(net)}</span>`:''}
         <span class="pay ${done?'paid':'unpaid'}">${done?'입금':'미입금'}</span>
@@ -687,7 +741,7 @@ function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>j.status===
   el.innerHTML=arr.map(jobCard).join(''); }
 
 /* calendar */
-function heatColor(secs){ if(!secs||secs<0)return 'transparent'; const h=secs/3600; let p; if(h<0.5)p=10; else if(h<1)p=22; else if(h<2)p=38; else if(h<4)p=58; else p=80; return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`; }
+function heatColor(secs){ if(!secs||secs<0)return 'transparent'; const h=secs/3600; let p; if(h<0.5)p=6; else if(h<1)p=11; else if(h<2)p=18; else if(h<4)p=27; else p=38; return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`; }
 function renderCal(){
   const {y,m}=calMonth, first=new Date(y,m,1), startDow=first.getDay(), days=new Date(y,m+1,0).getDate();
   const dows=['일','월','화','수','목','금','토'], tStr=todayStr(), dmap=dailySecsMap();
@@ -704,11 +758,14 @@ function renderCal(){
     <div class="cal-card">
       <div class="cal-head"><div class="m">${y}년 ${m+1}월</div><button class="navbtn" onclick="moveMonth(-1)">‹</button><button class="navbtn" onclick="moveMonth(1)">›</button><button class="today-btn" onclick="goToday()">오늘</button></div>
       <div class="cal-grid">${dows.map((w,i)=>`<div class="cal-dow ${i===0?'sun':''} ${i===6?'sat':''}">${w}</div>`).join('')}${cells}</div>
-      <div class="cal-legend">작업시간 적음 <span class="lg" style="background:${heatColor(0.4*3600)}"></span><span class="lg" style="background:${heatColor(1.5*3600)}"></span><span class="lg" style="background:${heatColor(3*3600)}"></span><span class="lg" style="background:${heatColor(5*3600)}"></span> 많음 · <span style="color:var(--accent-text)">●</span> 마감 있는 날</div>
+      <div class="cal-legend"><span>작업시간 적음</span> <span class="lg" style="background:${heatColor(0.4*3600)}"></span><span class="lg" style="background:${heatColor(1.5*3600)}"></span><span class="lg" style="background:${heatColor(3*3600)}"></span><span class="lg" style="background:${heatColor(5*3600)}"></span> <span>많음 · <span style="color:var(--accent-text)">●</span> 마감 있는 날</span><button class="legend-reset" onclick="clearAllSessions()" title="달력의 작업시간 색칠 기록을 모두 지웁니다">기록 초기화</button></div>
     </div>
     <div id="dayPanel"></div>`;
   renderDayPanel();
 }
+function clearAllSessions(){ if(!sessions.length){ toast('지울 작업시간 기록이 없어요'); return; }
+  if(!confirm('달력의 작업시간 색칠 기록(측정·입력된 시간 로그)을 모두 지울까요?\\n각 작업 카드에 저장된 시간과 금액은 그대로 남아요.'))return;
+  sessions=[]; saveSessions(); render(); toast('작업시간 기록을 모두 지웠어요'); }
 function selectDay(ds){ calSel=ds; renderCal(); }
 function goToday(){ calMonth={y:new Date().getFullYear(),m:new Date().getMonth()}; calSel=todayStr(); renderCal(); }
 function moveMonth(delta){ let{y,m}=calMonth; m+=delta; if(m<0){m=11;y--;} if(m>11){m=0;y++;} calMonth={y,m}; renderCal(); }
@@ -791,6 +848,7 @@ function setView(v){ view=v;
   document.getElementById('calView').style.display=v==='cal'?'':'none';
   document.getElementById('listView').style.display=v==='list'?'flex':'none';
   document.getElementById('statsView').style.display=v==='stats'?'block':'none';
+  document.getElementById('timerView').style.display=v==='timer'?'block':'none';
   document.getElementById('focusView').style.display=v==='focus'?'block':'none';
   document.getElementById('clientView').style.display=v==='client'?'block':'none';
   document.querySelector('.filters').style.display=v==='list'?'inline-flex':'none';
@@ -845,7 +903,7 @@ function timerSeconds(){ if(!activeTimer)return 0; return activeTimer.accSec+(ac
 function fmtHMS(s){ const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60; return [h,m,sec].map(n=>String(n).padStart(2,'0')).join(':'); }
 function fmtDur(sec){ const m=Math.round(sec/60); if(m<1)return`${sec}초`; if(m<60)return`${m}분`; const h=Math.floor(m/60),mm=m%60; return mm?`${h}시간 ${mm}분`:`${h}시간`; }
 function startTick(){ clearInterval(timerInterval); timerInterval=setInterval(updateTimerDisplays,1000); }
-function updateTimerDisplays(){ const sec=timerSeconds(); const t=document.getElementById('timerTime'); if(t)t.textContent=fmtHMS(sec); if(activeTimer){const c=document.getElementById('cardTimer-'+activeTimer.jobId); if(c)c.textContent=fmtHMS(sec);} }
+function updateTimerDisplays(){ const sec=timerSeconds(); const t=document.getElementById('timerTime'); if(t)t.textContent=fmtHMS(sec); const ts=document.getElementById('tScreenT'); if(ts)ts.textContent=fmtHMS(sec); if(activeTimer){const c=document.getElementById('cardTimer-'+activeTimer.jobId); if(c)c.textContent=fmtHMS(sec);} }
 function startTimer(id){ if(activeTimer&&activeTimer.jobId!==id){ if(!confirm('진행 중인 다른 타이머가 있어요. 지금까지 기록을 저장하고 이 작업으로 바꿀까요?'))return; commitTimer(true); }
   if(activeTimer&&activeTimer.jobId===id)return; activeTimer={jobId:id,accSec:0,startedAt:Date.now()}; saveTimerState(); startTick(); renderTimerBar(); render(); }
 function pauseTimer(){ if(!activeTimer||!activeTimer.startedAt)return; activeTimer.accSec=timerSeconds(); activeTimer.startedAt=null; clearInterval(timerInterval); timerInterval=null; saveTimerState(); renderTimerBar(); }
@@ -865,6 +923,40 @@ function renderTimerBar(){ let bar=document.getElementById('timerBar'); if(!acti
 }
 
 /* focus timer */
+const STAGES=['러프 스케치','채색','납품'];
+let timerSel=null;
+function selectTimerJob(id){ timerSel=id; renderTimer(); }
+function stageNext(){ const j=jobs.find(x=>x.id===timerSel); if(!j||j.status==='완료')return;
+  if((j.stage||0)>=STAGES.length-1){ j.status='완료'; saveJobs(); syncUp(j); toast('납품 완료! 완료 처리했어요'); }
+  else { j.stage=(j.stage||0)+1; saveJobs(); syncUp(j); }
+  renderTimer(); renderStats(); }
+function stagePrev(){ const j=jobs.find(x=>x.id===timerSel); if(!j)return;
+  if(j.status==='완료')j.status='진행'; else j.stage=Math.max(0,(j.stage||0)-1);
+  saveJobs(); syncUp(j); renderTimer(); renderStats(); }
+function renderTimer(){ const el=document.getElementById('timerView'); if(!el)return;
+  const list=sortJobs(jobs.filter(j=>j.status!=='완료'));
+  if(timerSel&&!jobs.find(j=>j.id===timerSel))timerSel=null;
+  if(!timerSel&&list.length)timerSel=list[0].id;
+  const j=jobs.find(x=>x.id===timerSel);
+  const listHTML=list.length?list.map(x=>{ const dl=ddayLabel(x.deadline),pct=Math.round((Math.min(x.stage||0,STAGES.length-1)/(STAGES.length-1))*100);
+    return `<button class="tproj ${x.id===timerSel?'on':''}" onclick="selectTimerJob('${x.id}')"><div class="tproj-top"><span class="tproj-title">${esc(x.title)}</span>${dl?`<span class="tag dday ${dl.cls}">${dl.t}</span>`:''}</div><div class="tproj-sub">${[x.client,x.site].filter(Boolean).map(esc).join(' · ')||'&nbsp;'}</div><div class="tproj-bar"><span style="width:${pct}%"></span></div></button>`;
+  }).join(''):`<div class="empty" style="padding:24px"><div>진행 중인 작업이 없어요</div></div>`;
+  let detail;
+  if(j){ const timingThis=activeTimer&&activeTimer.jobId===j.id, running=timingThis&&!!activeTimer.startedAt, doneAll=j.status==='완료', cur=Math.min(j.stage||0,STAGES.length-1);
+    const stepper=STAGES.map((s,i)=>`<div class="tstep ${(i<cur||doneAll)?'done':''} ${(i===cur&&!doneAll)?'cur':''}"><span class="tstep-n">${i+1}</span><span class="tstep-l">${s}</span></div>`).join('<span class="tstep-line"></span>');
+    const stageList=STAGES.map((s,i)=>`<div class="tstage-row ${(i===cur&&!doneAll)?'cur':''} ${(i<cur||doneAll)?'done':''}"><span class="tstage-n">${i+1}</span><span class="tstage-name">${s}</span>${(i===cur&&!doneAll)?'<span class="tstage-tag">진행중</span>':((i<cur||doneAll)?'<span class="tstage-tag ok">완료</span>':'')}</div>`).join('');
+    const bigTime=timingThis?fmtHMS(timerSeconds()):'00:00:00';
+    let ctrl;
+    if(!timingThis)ctrl=`<button class="tbtn go" onclick="startTimer('${j.id}')">▶ 시작</button>`;
+    else if(running)ctrl=`<button class="tbtn" onclick="pauseTimer();renderTimer()">⏸ 일시정지</button><button class="tbtn stop" onclick="stopTimer()">⏹ 종료·저장</button><button class="tbtn ghost" onclick="cancelTimer()">초기화</button>`;
+    else ctrl=`<button class="tbtn go" onclick="resumeTimer();renderTimer()">▶ 재개</button><button class="tbtn stop" onclick="stopTimer()">⏹ 종료·저장</button><button class="tbtn ghost" onclick="cancelTimer()">초기화</button>`;
+    detail=`<div class="tdetail-head">${esc(j.title)}${doneAll?' <span class="tag stat-완료">완료</span>':''}</div>
+      <div class="tstepper">${stepper}</div>
+      <div class="tbig"><div class="tbig-time" id="tScreenT">${bigTime}</div><div class="tbig-acc">누적 ${fmtHM(j.secs||0)}</div><div class="tbig-ctrl">${ctrl}</div></div>
+      <div class="tstage-panel"><div class="tstage-head"><span>단계 진행</span><span class="tstage-btns"><button class="tbtn sm ghost" onclick="stagePrev()">← 되돌리기</button><button class="tbtn sm go" onclick="stageNext()" ${doneAll?'disabled':''}>${cur>=STAGES.length-1&&!doneAll?'완료 처리 →':'다음 단계 →'}</button></span></div>${stageList}</div>`;
+  } else { detail=`<div class="empty" style="padding:40px"><div class="big">작업을 선택해 주세요</div><div>왼쪽 목록에서 타이머를 돌릴 작업을 고르세요.</div></div>`; }
+  el.innerHTML=`<div class="tgrid"><div class="tlist"><div class="tlist-h">프로젝트</div>${listHTML}</div><div class="tpane">${detail}</div></div>`;
+}
 let focusTotal=25*60, focusRemain=25*60, focusRunning=false, focusInt=null, focusPreset=25, focusDoneToday=0;
 function renderFocus(){
   const jobOpts=jobs.filter(j=>j.status!=='완료').map(j=>`<option value="${j.id}">${esc(j.title)}</option>`).join('');
@@ -956,7 +1048,7 @@ function handleGcalErr(e){ const code=e&&e.status; console.warn('gcal error', co
 function syncUp(job){ if(gcalReady()) gcalUpsert(job); }
 
 /* render router + events */
-function render(){ renderStats(); if(view==='list'){ renderFilters(); renderList(); } else if(view==='cal') renderCal(); else if(view==='stats') renderStatsView(); else if(view==='client') renderClient(); }
+function render(){ renderStats(); if(view==='list'){ renderFilters(); renderList(); } else if(view==='cal') renderCal(); else if(view==='stats') renderStatsView(); else if(view==='timer') renderTimer(); else if(view==='client') renderClient(); }
 document.getElementById('prioritySeg').addEventListener('click',e=>{ const l=e.target.closest('label'); if(!l)return; priorityPick=l.dataset.v; setPriorityUI(); });
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeForm(); });
 document.getElementById('gcalOverlay').addEventListener('click',e=>{ if(e.target.id==='gcalOverlay') closeGcalSetup(); });
@@ -966,6 +1058,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeForm(); clos
 (async()=>{
   accentName=await getSetting('accent')||'brick'; applyTheme();
   await loadJobs(); await loadSessions(); await loadTimer();
+  if(!(await getSetting('seed_clean2'))){ const before=sessions.length; sessions=sessions.filter(s=>s.jobId); if(sessions.length!==before) await saveSessions(); await setSetting('seed_clean2','1'); }
   calSel=todayStr();
   if(!jobs.length){ const today=new Date(), plus=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
     jobs=[
@@ -973,7 +1066,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeForm(); clos
       {id:uid(),created:Date.now()+1,title:'LD 반신 채색',client:'김작가',site:'윗치폼',cat:'LD',deadline:plus(5),status:'예약',priority:'보통',secs:0,amount:120000},
       {id:uid(),created:Date.now()+2,title:'SD 이모티콘 4종',client:'홍길동',site:'카카오톡',cat:'SD',deadline:plus(-1),status:'완료',priority:'낮음',secs:6*3600,amount:80000},
     ];
-    sessions=[{id:uid(),date:todayStr(),secs:2*3600,jobId:null},{id:uid(),date:plus(-1),secs:3.5*3600,jobId:null},{id:uid(),date:plus(-2),secs:1*3600,jobId:null}];
+    sessions=[];
     await saveJobs(); await saveSessions();
   }
   if(activeTimer&&!jobs.find(j=>j.id===activeTimer.jobId)){ activeTimer=null; saveTimerState(); }
