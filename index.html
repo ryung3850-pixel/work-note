@@ -156,19 +156,27 @@
   html[data-accent="indigo"] .timer-bar{background:#2a2d52}
   html[data-accent="indigo"] .save-state .pip{box-shadow:none}
 
-  /* ===== 흑백 테마: 그레이 야간 스킨 ===== */
+  /* ===== 흑백 테마: 그레이 픽셀(도트) 스킨 ===== */
   html[data-accent="mono"]{
-    --bg:#1e1e21; --bg-grad1:#232327; --bg-grad2:#1c1c1f;
-    --surface:#28282c; --surface-2:#2f2f34; --elev:#36363b;
-    --ink:#e6e6ea; --ink-soft:#b4b4bb; --muted:#84848c;
-    --line:#3a3a40; --line-soft:#333338;
-    --money:#cdcdd2; --warn:#a6a6ad; --shadow:0 1px 3px rgba(0,0,0,.4);
+    --bg:#141416; --bg-grad1:#141416; --bg-grad2:#141416;
+    --surface:#2c2c32; --surface-2:#35353c; --elev:#3d3d44;
+    --ink:#eeeef2; --ink-soft:#bcbcc4; --muted:#8c8c94;
+    --line:#6c6c75; --line-soft:#45454f;
+    --money:#d2d2d7; --warn:#ababb2; --shadow:3px 3px 0 #000;
   }
-  html[data-accent="mono"] body{font-family:'IBM Plex Sans KR',sans-serif}
-  html[data-accent="mono"] .brand h1,html[data-accent="mono"] .panel h3,html[data-accent="mono"] .modal-head h2,html[data-accent="mono"] .cal-head .m,html[data-accent="mono"] .stat-nav .nl,html[data-accent="mono"] .day-panel h3,html[data-accent="mono"] .stat .val,html[data-accent="mono"] .sum-card .v,html[data-accent="mono"] .j-amt,html[data-accent="mono"] .cli-amt,html[data-accent="mono"] .focus-time .t,html[data-accent="mono"] .tb-time{font-family:'IBM Plex Sans KR',sans-serif;letter-spacing:-.02em;font-weight:700}
-  html[data-accent="mono"] .stat .bar{background:#4d4d54}
+  html[data-accent="mono"] body{font-family:'Galmuri11',ui-monospace,monospace;background:radial-gradient(rgba(230,230,234,.10) 1.5px,transparent 1.7px) 0 0/15px 15px,var(--bg)}
+  html[data-accent="mono"] .brand h1,html[data-accent="mono"] .brand .sub,html[data-accent="mono"] .panel h3,html[data-accent="mono"] .modal-head h2,html[data-accent="mono"] .cal-head .m,html[data-accent="mono"] .stat-nav .nl,html[data-accent="mono"] .day-panel h3,html[data-accent="mono"] .stat .val,html[data-accent="mono"] .sum-card .v,html[data-accent="mono"] .j-amt,html[data-accent="mono"] .cli-amt,html[data-accent="mono"] .focus-time .t,html[data-accent="mono"] .tb-time,html[data-accent="mono"] .tab,html[data-accent="mono"] .tbig-time,html[data-accent="mono"] .tdetail-head{font-family:'Galmuri11',ui-monospace,monospace;letter-spacing:0}
+  html[data-accent="mono"] .stat,html[data-accent="mono"] .job,html[data-accent="mono"] .panel,html[data-accent="mono"] .sum-card,html[data-accent="mono"] .cli-card,html[data-accent="mono"] .cal-card,html[data-accent="mono"] .day-panel,html[data-accent="mono"] .sync-bar,html[data-accent="mono"] .focus-card,html[data-accent="mono"] .modal,html[data-accent="mono"] .tabs,html[data-accent="mono"] .theme-pop,html[data-accent="mono"] .tproj,html[data-accent="mono"] .tpane,html[data-accent="mono"] .tbig,html[data-accent="mono"] .tstage-panel{border-radius:0;border:2px solid var(--line)}
+  html[data-accent="mono"] .btn,html[data-accent="mono"] .btn-add,html[data-accent="mono"] .sync-btn,html[data-accent="mono"] .chip,html[data-accent="mono"] .fp,html[data-accent="mono"] .seg label,html[data-accent="mono"] .seg-toggle,html[data-accent="mono"] .seg-toggle button,html[data-accent="mono"] .stat-nav .navbtn,html[data-accent="mono"] .cal-head .navbtn,html[data-accent="mono"] .cal-head .today-btn,html[data-accent="mono"] .field input,html[data-accent="mono"] .field select,html[data-accent="mono"] .tag,html[data-accent="mono"] .check,html[data-accent="mono"] .theme-toggle,html[data-accent="mono"] .search-input,html[data-accent="mono"] .layout-toggle,html[data-accent="mono"] .lt,html[data-accent="mono"] .tbtn,html[data-accent="mono"] .legend-reset{border-radius:0;border:2px solid var(--line)}
+  html[data-accent="mono"] .tab,html[data-accent="mono"] .cal-num,html[data-accent="mono"] .bar-v,html[data-accent="mono"] .tproj-bar,html[data-accent="mono"] .tproj-bar span{border-radius:0}
+  html[data-accent="mono"] .cal-grid{gap:0;border:2px solid var(--line)}
+  html[data-accent="mono"] .cal-cell{border:1px solid var(--line-soft);border-radius:0}
+  html[data-accent="mono"] .cal-dow{border:1px solid var(--line-soft)}
+  html[data-accent="mono"] .tstep-n,html[data-accent="mono"] .tstage-n{border-radius:0}
+  html[data-accent="mono"] .job:hover,html[data-accent="mono"] .btn-add:hover{transform:translate(-1px,-1px)}
+  html[data-accent="mono"] .stat .bar{background:var(--ink)}
   html[data-accent="mono"] .tag.dday.over{background:#5a5a61;color:#ededf0}
-  html[data-accent="mono"] .timer-bar{background:#161616}
+  html[data-accent="mono"] .timer-bar{background:#161616;border-radius:0;border:2px solid var(--line)}
 
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -256,10 +264,13 @@
   .layout-toggle{display:flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:3px;flex-shrink:0}
   .lt{border:none;background:transparent;color:var(--muted);width:36px;height:34px;border-radius:10px;cursor:pointer;font-size:15px;transition:.15s}
   .lt.on{background:var(--accent);color:var(--on-accent)}
-  .list.tile{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
-  .list.tile .job{grid-template-columns:auto minmax(0,1fr);gap:11px}
-  .list.tile .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 10px;margin-top:6px;white-space:normal}
-  .list.tile .j-actions{margin-top:2px}
+  .list.tile{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;align-items:stretch}
+  .list.tile .job{grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr auto;gap:0 11px;align-items:start;padding:16px 18px}
+  .list.tile .check{grid-column:1;grid-row:1}
+  .list.tile .j-main{grid-column:2;grid-row:1;min-width:0}
+  .list.tile .j-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em;line-height:1.25}
+  .list.tile .j-side{grid-column:2;grid-row:2;align-self:end;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;white-space:normal;text-align:left}
+  .list.tile .j-actions{margin-top:0}
   .job.hi{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--surface-2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 22%,transparent),var(--shadow)}
   .job.hi:hover{border-color:var(--accent)}
   .tag.pri{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent-ink);font-weight:700}
