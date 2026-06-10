@@ -35,7 +35,7 @@
   :root[data-accent="plum"]   {--accent:#9d3c64; --accent-ink:#7c2c4d; --accent-hover:#7c2c4d; --accent-text:#9d3c64}
   :root[data-accent="indigo"] {--accent:#7e87ff; --accent-ink:#aab0ff; --accent-hover:#9197ff; --on-accent:#16172b; --accent-text:#aab0ff}
   :root[data-accent="olive"]  {--accent:#6e7a39; --accent-ink:#565f2a; --accent-hover:#565f2a; --accent-text:#6e7a39}
-  :root[data-accent="mono"]   {--accent:#c9c9ce; --accent-ink:#e8e8ec; --accent-hover:#d8d8dd; --on-accent:#212126; --accent-text:#d6d6db}
+  :root[data-accent="mono"]   {--accent:#1f1f1f; --accent-ink:#1f1f1f; --accent-hover:#000000; --on-accent:#ffffff; --accent-text:#1f1f1f}
   :root[data-accent="excel"]  {--accent:#217346; --accent-ink:#185c37; --accent-hover:#185c37; --accent-text:#217346}
   :root[data-accent="dot"]    {--accent:#d65a8f; --accent-ink:#a83a6c; --accent-hover:#b8437a; --accent-text:#b8437a}
   :root[data-accent="kakao"]  {--accent:#ffd400; --accent-ink:#6b5200; --accent-hover:#f0c800; --on-accent:#3a1d1d; --accent-text:#8a6a00}
@@ -156,27 +156,47 @@
   html[data-accent="indigo"] .timer-bar{background:#2a2d52}
   html[data-accent="indigo"] .save-state .pip{box-shadow:none}
 
-  /* ===== 흑백 테마: 그레이 픽셀(도트) 스킨 ===== */
+  /* ===== 흑백 테마: 서류 문서 스킨 ===== */
   html[data-accent="mono"]{
-    --bg:#141416; --bg-grad1:#141416; --bg-grad2:#141416;
-    --surface:#2c2c32; --surface-2:#35353c; --elev:#3d3d44;
-    --ink:#eeeef2; --ink-soft:#bcbcc4; --muted:#8c8c94;
-    --line:#6c6c75; --line-soft:#45454f;
-    --money:#d2d2d7; --warn:#ababb2; --shadow:3px 3px 0 #000;
+    --bg:#ececeb; --bg-grad1:#ececeb; --bg-grad2:#ececeb;
+    --surface:#ffffff; --surface-2:#ffffff; --elev:#ffffff;
+    --ink:#1c1c1c; --ink-soft:#4a4a4a; --muted:#7c7c7c;
+    --line:#dcdcda; --line-soft:#ececea;
+    --money:#333333; --warn:#6f6f6f; --shadow:0 1px 2px rgba(0,0,0,.05);
   }
-  html[data-accent="mono"] body{font-family:'Galmuri11',ui-monospace,monospace;background:radial-gradient(rgba(230,230,234,.10) 1.5px,transparent 1.7px) 0 0/15px 15px,var(--bg)}
-  html[data-accent="mono"] .brand h1,html[data-accent="mono"] .brand .sub,html[data-accent="mono"] .panel h3,html[data-accent="mono"] .modal-head h2,html[data-accent="mono"] .cal-head .m,html[data-accent="mono"] .stat-nav .nl,html[data-accent="mono"] .day-panel h3,html[data-accent="mono"] .stat .val,html[data-accent="mono"] .sum-card .v,html[data-accent="mono"] .j-amt,html[data-accent="mono"] .cli-amt,html[data-accent="mono"] .focus-time .t,html[data-accent="mono"] .tb-time,html[data-accent="mono"] .tab,html[data-accent="mono"] .tbig-time,html[data-accent="mono"] .tdetail-head{font-family:'Galmuri11',ui-monospace,monospace;letter-spacing:0}
-  html[data-accent="mono"] .stat,html[data-accent="mono"] .job,html[data-accent="mono"] .panel,html[data-accent="mono"] .sum-card,html[data-accent="mono"] .cli-card,html[data-accent="mono"] .cal-card,html[data-accent="mono"] .day-panel,html[data-accent="mono"] .sync-bar,html[data-accent="mono"] .focus-card,html[data-accent="mono"] .modal,html[data-accent="mono"] .tabs,html[data-accent="mono"] .theme-pop,html[data-accent="mono"] .tproj,html[data-accent="mono"] .tpane,html[data-accent="mono"] .tbig,html[data-accent="mono"] .tstage-panel{border-radius:0;border:2px solid var(--line)}
-  html[data-accent="mono"] .btn,html[data-accent="mono"] .btn-add,html[data-accent="mono"] .sync-btn,html[data-accent="mono"] .chip,html[data-accent="mono"] .fp,html[data-accent="mono"] .seg label,html[data-accent="mono"] .seg-toggle,html[data-accent="mono"] .seg-toggle button,html[data-accent="mono"] .stat-nav .navbtn,html[data-accent="mono"] .cal-head .navbtn,html[data-accent="mono"] .cal-head .today-btn,html[data-accent="mono"] .field input,html[data-accent="mono"] .field select,html[data-accent="mono"] .tag,html[data-accent="mono"] .check,html[data-accent="mono"] .theme-toggle,html[data-accent="mono"] .search-input,html[data-accent="mono"] .layout-toggle,html[data-accent="mono"] .lt,html[data-accent="mono"] .tbtn,html[data-accent="mono"] .legend-reset{border-radius:0;border:2px solid var(--line)}
-  html[data-accent="mono"] .tab,html[data-accent="mono"] .cal-num,html[data-accent="mono"] .bar-v,html[data-accent="mono"] .tproj-bar,html[data-accent="mono"] .tproj-bar span{border-radius:0}
-  html[data-accent="mono"] .cal-grid{gap:0;border:2px solid var(--line)}
+  html[data-accent="mono"] body{font-family:'IBM Plex Sans KR',sans-serif}
+  html[data-accent="mono"] .brand h1,html[data-accent="mono"] .panel h3,html[data-accent="mono"] .modal-head h2,html[data-accent="mono"] .cal-head .m,html[data-accent="mono"] .stat-nav .nl,html[data-accent="mono"] .day-panel h3,html[data-accent="mono"] .stat .val,html[data-accent="mono"] .sum-card .v,html[data-accent="mono"] .j-amt,html[data-accent="mono"] .cli-amt,html[data-accent="mono"] .focus-time .t,html[data-accent="mono"] .tb-time,html[data-accent="mono"] .tdetail-head{font-family:'IBM Plex Sans KR',sans-serif;letter-spacing:-.01em;font-weight:700}
+  html[data-accent="mono"] .stat,html[data-accent="mono"] .job,html[data-accent="mono"] .panel,html[data-accent="mono"] .sum-card,html[data-accent="mono"] .cli-card,html[data-accent="mono"] .cal-card,html[data-accent="mono"] .day-panel,html[data-accent="mono"] .sync-bar,html[data-accent="mono"] .focus-card,html[data-accent="mono"] .modal,html[data-accent="mono"] .tabs,html[data-accent="mono"] .theme-pop,html[data-accent="mono"] .tproj,html[data-accent="mono"] .tpane,html[data-accent="mono"] .tbig,html[data-accent="mono"] .tstage-panel{border-radius:6px;border:1px solid var(--line)}
+  html[data-accent="mono"] .btn,html[data-accent="mono"] .btn-add,html[data-accent="mono"] .sync-btn,html[data-accent="mono"] .chip,html[data-accent="mono"] .fp,html[data-accent="mono"] .seg label,html[data-accent="mono"] .seg-toggle,html[data-accent="mono"] .seg-toggle button,html[data-accent="mono"] .stat-nav .navbtn,html[data-accent="mono"] .cal-head .navbtn,html[data-accent="mono"] .cal-head .today-btn,html[data-accent="mono"] .field input,html[data-accent="mono"] .field select,html[data-accent="mono"] .tag,html[data-accent="mono"] .search-input,html[data-accent="mono"] .layout-toggle,html[data-accent="mono"] .lt,html[data-accent="mono"] .tbtn,html[data-accent="mono"] .legend-reset{border-radius:6px}
+  html[data-accent="mono"] .stat .bar{display:none}
+  html[data-accent="mono"] .pbar{display:none}
+  html[data-accent="mono"] .tag.site2{background:#f0f0ef!important;color:#333!important;font-weight:600}
+  html[data-accent="mono"] .pay.paid{background:#ededec;color:#333}
+  html[data-accent="mono"] .pay.unpaid{background:#f5f5f4;color:#7c7c7c}
+  html[data-accent="mono"] .tag.dday.over{background:#1c1c1c;color:#fff}
+  html[data-accent="mono"] .timer-bar{background:#1c1c1c}
+  /* 블록 제거: 목록을 종이 한 장 + 가는 행 구분선으로 */
+  html[data-accent="mono"] #listView.list:not(.tile){gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+  html[data-accent="mono"] #listView.list:not(.tile) .job{border:none;border-bottom:1px solid var(--line-soft);border-radius:0;box-shadow:none;background:transparent}
+  html[data-accent="mono"] #listView.list:not(.tile) .job:last-child{border-bottom:none}
+  html[data-accent="mono"] #listView.list:not(.tile) .job:hover{transform:none;background:#fafafa;box-shadow:none}
+  html[data-accent="mono"] #listView.list:not(.tile) .job.hi{box-shadow:none;background:#fafafa}
+  html[data-accent="mono"] .day-list .job{border:none;border-bottom:1px solid var(--line-soft);border-radius:0;box-shadow:none;background:transparent;padding-left:2px;padding-right:2px}
+  html[data-accent="mono"] .day-list .job:last-child{border-bottom:none}
+  html[data-accent="mono"] .day-list .job:hover{transform:none;background:transparent}
+  /* 엑셀처럼 깔끔한 표 분위기 (기본 대시보드) */
+  html[data-accent="mono"] .tabs{border:1px solid var(--line);border-radius:6px;padding:0;overflow:hidden;background:#fff}
+  html[data-accent="mono"] .tab{border-radius:0;border-right:1px solid var(--line-soft)}
+  html[data-accent="mono"] .tab:last-child{border-right:none}
+  html[data-accent="mono"] .tab.active{background:#fff;color:var(--ink);box-shadow:inset 0 -3px 0 #1c1c1c;font-weight:700}
+  html[data-accent="mono"] .stats{gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+  html[data-accent="mono"] .stat{border:none;border-right:1px solid var(--line-soft);border-radius:0}
+  html[data-accent="mono"] .stat:last-child{border-right:none}
+  html[data-accent="mono"] .stat .lab{font-size:11px}
+  html[data-accent="mono"] .stat .val,html[data-accent="mono"] .sum-card .v,html[data-accent="mono"] .j-amt,html[data-accent="mono"] .amt,html[data-accent="mono"] .cli-amt,html[data-accent="mono"] .bar-val,html[data-accent="mono"] .tbig-time{font-family:ui-monospace,Consolas,'Roboto Mono',monospace;font-variant-numeric:tabular-nums}
+  html[data-accent="mono"] .cal-grid{gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
   html[data-accent="mono"] .cal-cell{border:1px solid var(--line-soft);border-radius:0}
-  html[data-accent="mono"] .cal-dow{border:1px solid var(--line-soft)}
-  html[data-accent="mono"] .tstep-n,html[data-accent="mono"] .tstage-n{border-radius:0}
-  html[data-accent="mono"] .job:hover,html[data-accent="mono"] .btn-add:hover{transform:translate(-1px,-1px)}
-  html[data-accent="mono"] .stat .bar{background:var(--ink)}
-  html[data-accent="mono"] .tag.dday.over{background:#5a5a61;color:#ededf0}
-  html[data-accent="mono"] .timer-bar{background:#161616;border-radius:0;border:2px solid var(--line)}
+  html[data-accent="mono"] .cal-dow{background:#f5f5f4;border:1px solid var(--line-soft)}
 
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -207,7 +227,7 @@
   .sw[data-a="plum"]{background:#9d3c64} .sw[data-a="indigo"]{background:#5b64e0} .sw[data-a="olive"]{background:#6e7a39}
   .sw[data-a="excel"]{background:#217346} .sw[data-a="dot"]{background:#d65a8f}
   .sw[data-a="kakao"]{background:#ffd400}
-  .sw[data-a="mono"]{background:linear-gradient(135deg,#2b2b30 0 50%,#9a9aa1 50% 100%)}
+  .sw[data-a="mono"]{background:linear-gradient(135deg,#1c1c1c 0 50%,#ffffff 50% 100%)}
 
   .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:24px}
   .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
@@ -271,13 +291,18 @@
   .list.tile .j-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em;line-height:1.25}
   .list.tile .j-side{grid-column:2;grid-row:2;align-self:end;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;white-space:normal;text-align:left}
   .list.tile .j-actions{margin-top:0}
+  .list.tile .j-info{column-gap:8px;row-gap:5px}
+  .list.tile .j-info > span + span:not(.pay):not(.site2)::before{content:none}
+  .list.tile .j-info .pay{margin-left:0}
   .job.hi{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--surface-2));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 22%,transparent),var(--shadow)}
   .job.hi:hover{border-color:var(--accent)}
   .tag.pri{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent-ink);font-weight:700}
   .pri-star{font-size:13px}
-  .j-info{display:flex;flex-wrap:wrap;align-items:center;margin-top:7px;font-size:13px;color:var(--ink-soft)}
+  .j-info{display:flex;flex-wrap:wrap;align-items:center;row-gap:5px;margin-top:7px;font-size:13px;color:var(--ink-soft);line-height:1.4}
   .j-info > span + span:not(.pay):not(.site2)::before{content:"·";margin:0 7px;color:var(--muted);opacity:.7}
   .tag.site2{font-weight:700;margin-right:1px;background:var(--accent-soft);color:var(--accent-ink)}
+  .j-info > span + .site2{margin-left:7px}
+  .list.tile .j-info > span + .site2{margin-left:0}
   .day-list .pay{display:none}
   .j-info .amt{color:var(--ink);font-weight:600}
   .j-info .pay{margin-left:9px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px}
@@ -332,14 +357,17 @@
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
   .cal-dow{text-align:center;font-size:12px;color:var(--muted);padding-bottom:10px;font-weight:600}
   .cal-dow.sun{color:var(--sun)} .cal-dow.sat{color:var(--sat)}
-  .cal-cell{position:relative;min-height:62px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding-top:8px;transition:.12s;border:1px solid transparent}
+  .cal-cell{position:relative;min-height:86px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;padding:6px 5px 5px;transition:.12s;border:1px solid transparent}
   .cal-cell.blank{cursor:default}
   .cal-cell:not(.blank):hover{border-color:var(--line)}
   .cal-cell.sel{border-color:var(--accent-text);box-shadow:0 0 0 1px var(--accent) inset}
-  .cal-num{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;font-size:14px;font-weight:500;color:var(--ink)}
+  .cal-num{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:14px;font-weight:500;color:var(--ink);align-self:center;flex-shrink:0}
   .cal-cell.sun .cal-num{color:var(--sun)} .cal-cell.sat .cal-num{color:var(--sat)}
   .cal-cell.today .cal-num{background:var(--accent);color:var(--on-accent);font-weight:700}
-  .cal-dot{position:absolute;bottom:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+  .cal-task{font-size:10px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;background:var(--accent-soft);color:var(--accent-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-task.done{opacity:.5;text-decoration:line-through}
+  .cal-more{font-size:9.5px;color:var(--muted);margin-top:2px;padding-left:4px}
+  .cal-dot{display:none;position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
   .cal-legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:12px;font-size:11px;color:var(--muted)}
   .cal-legend .lg{width:15px;height:15px;border-radius:4px;border:1px solid var(--line-soft)}
   .legend-reset{margin-left:auto;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
@@ -519,7 +547,8 @@
     .job{grid-template-columns:auto 1fr;gap:10px}
     .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:10px;margin-top:2px}
     .modal-body{grid-template-columns:1fr}
-    .cal-cell{min-height:48px} .cal-num{width:28px;height:28px;font-size:13px}
+    .cal-cell{min-height:46px;padding-top:6px;align-items:center} .cal-num{width:28px;height:28px;font-size:13px}
+    .cal-task,.cal-more{display:none} .cal-dot{display:block}
     .brand h1{font-size:24px}
     .theme-pop{position:fixed;top:62px;right:12px;left:auto}
     .timer-bar{left:10px;right:10px;bottom:12px;transform:translateY(28px);max-width:none;gap:10px;padding:11px 13px;flex-wrap:wrap}
@@ -761,9 +790,9 @@ function renderCal(){
   for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell blank"></div>`;
   for(let d=1;d<=days;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, dow=(startDow+d-1)%7;
-    const has=jobs.some(j=>j.deadline===ds), sec=dmap[ds]||0;
+    const dj=jobs.filter(j=>j.deadline===ds), sec=dmap[ds]||0;
     cells+=`<div class="cal-cell ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="selectDay('${ds}')">
-      <div class="cal-num">${d}</div>${has?`<span class="cal-dot"></span>`:''}</div>`;
+      <div class="cal-num">${d}</div>${dj.slice(0,2).map(j=>`<div class="cal-task ${j.status==='완료'?'done':''}" title="${esc(j.title)}">${esc(j.title)}</div>`).join('')}${dj.length>2?`<div class="cal-more">+${dj.length-2}</div>`:''}${dj.length?`<span class="cal-dot"></span>`:''}</div>`;
   }
   document.getElementById('calView').innerHTML=`
     <div class="cal-card">
