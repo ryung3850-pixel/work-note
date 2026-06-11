@@ -233,6 +233,8 @@
   .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .stat .lab{font-size:11px;color:var(--muted)}
   .stat .val{font-family:'Gowun Batang',serif;font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .stat .val.private{filter:blur(7px);transition:filter .18s ease;user-select:none}
+  .stat:hover .val.private,#stats.reveal .val.private{filter:none;user-select:auto}
   .stat .val small{font-size:13px;font-weight:400;color:var(--muted)}
   .stat.money .val{color:var(--money)}
   .stat.pending .val{color:var(--accent-text)}
@@ -308,6 +310,7 @@
   .j-info .pay{margin-left:9px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:7px}
   .pay.paid{background:color-mix(in srgb,var(--money) 15%,var(--surface));color:var(--money)}
   .pay.unpaid{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--warn)}
+  .pay.cancel{background:color-mix(in srgb,var(--muted) 18%,var(--surface));color:var(--muted);text-decoration:none}
   .j-sub{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--muted)}
   .j-sub .st{color:var(--ink-soft)}
   .job{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;box-shadow:var(--shadow);transition:transform .15s, border-color .15s, box-shadow .15s;position:relative}
@@ -536,7 +539,6 @@
   @media(max-width:880px){ #calView{grid-template-columns:1fr} #calView #dayPanel{position:static} #calView .cal-card{margin-bottom:0} }
   @media(max-width:1080px){ .stats{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:760px){ .tgrid{grid-template-columns:1fr} }
-  @media(max-width:820px){ .stats{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:560px){
     .wrap{padding:24px 14px 88px}
     .stats{grid-template-columns:repeat(2,1fr)}
@@ -657,7 +659,7 @@
         <select id="f_site" onchange="updateFeeHint()"><option value="">선택 안 함</option><option value="크레페">크레페</option><option value="윗치폼">윗치폼</option><option value="아트머그">아트머그</option><option value="카카오톡">카카오톡</option><option value="DM">DM</option></select></div>
       <div class="field"><label>카테고리</label><select id="f_cat"><option value="SD">SD</option><option value="LD">LD</option></select></div>
       <div class="field"><label>마감일</label><input id="f_deadline" type="date"></div>
-      <div class="field"><label>상태</label><select id="f_status"><option value="예약">예약(대기)</option><option value="진행">진행 중</option><option value="완료">완료</option></select></div>
+      <div class="field"><label>상태</label><select id="f_status"><option value="예약">예약(대기)</option><option value="진행">진행 중</option><option value="완료">완료</option><option value="취소">취소</option></select></div>
       <div class="field full"><label>우선순위</label><div class="seg" id="prioritySeg"><label class="on" data-v="높음">높음</label><label data-v="보통">보통</label><label data-v="낮음">낮음</label></div></div>
       <div class="field"><label>작업 시간</label><div class="hm-row"><input id="f_h" type="number" min="0" placeholder="0"><span>시간</span><input id="f_m" type="number" min="0" max="59" placeholder="0"><span>분</span></div></div>
       <div class="field"><label>정산 금액 (원)</label><input id="f_amount" type="number" min="0" step="1000" placeholder="0" oninput="updateFeeHint()"><div class="hint" id="feeHint"></div></div>
@@ -703,7 +705,8 @@ function dday(d){ if(!d)return null; return Math.round((new Date(d)-new Date(tod
 function ddayLabel(d){ const n=dday(d); if(n===null)return null; if(n<0)return{t:'D+'+(-n)+' 지남',cls:'over'}; if(n===0)return{t:'D-DAY',cls:'soon'}; if(n<=2)return{t:'D-'+n,cls:'soon'}; return{t:'D-'+n,cls:'ok'}; }
 function nextDay(ds){ const d=new Date(ds); d.setDate(d.getDate()+1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function weekStartStr(ds){ const d=new Date(ds); d.setDate(d.getDate()-d.getDay()); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function dailySecsMap(){ const m={}; sessions.forEach(s=>{ m[s.date]=(m[s.date]||0)+s.secs; }); return m; }
+function activeSessions(){ const cx=new Set(jobs.filter(j=>j.status==='취소').map(j=>j.id)); return sessions.filter(s=>!cx.has(s.jobId)); }
+function dailySecsMap(){ const m={}; activeSessions().forEach(s=>{ m[s.date]=(m[s.date]||0)+s.secs; }); return m; }
 
 /* theme */
 function applyTheme(){ document.documentElement.setAttribute('data-accent',accentName); document.querySelectorAll('#swatches .sw').forEach(s=>{ const on=s.dataset.a===accentName; s.classList.toggle('on',on); if(s.parentElement) s.parentElement.classList.toggle('on',on); }); }
@@ -714,19 +717,19 @@ document.addEventListener('click',e=>{ const pop=document.getElementById('themeP
 /* stats top */
 function renderStats(){
   const c={예약:0,진행:0,완료:0}; let unpaid=0,paid=0; const tm=todayStr().slice(0,7); let monthNet=0;
-  jobs.forEach(j=>{ c[j.status]=(c[j.status]||0)+1; const net=netAmount(j); if(j.status==='완료')paid+=net; else unpaid+=net; if(j.deadline&&j.deadline.slice(0,7)===tm) monthNet+=net; });
+  jobs.forEach(j=>{ c[j.status]=(c[j.status]||0)+1; if(j.status==='취소')return; const net=netAmount(j); if(j.status==='완료')paid+=net; else unpaid+=net; if(j.deadline&&j.deadline.slice(0,7)===tm) monthNet+=net; });
   const tws=thisWeekSecs();
   const data=[
     {cls:'s1 pending',lab:'⏳ 대기 예약',val:c.예약},
     {cls:'s2',lab:'✎ 진행 중',val:c.진행},
     {cls:'s3',lab:'✓ 완료',val:c.완료},
     {cls:'s4',lab:'⏱ 이번 주 작업',val:fmtHM(tws)},
-    {cls:'s5 money pending',lab:'받을 금액',val:won(unpaid)},
-    {cls:'s6 money',lab:'이번 달 정산',val:won(monthNet)},
+    {cls:'s5 money pending',lab:'받을 금액',val:won(unpaid),priv:1},
+    {cls:'s6 money',lab:'이번 달 정산',val:won(monthNet),priv:1},
   ];
-  document.getElementById('stats').innerHTML=data.map(d=>`<div class="stat ${d.cls}"><span class="bar"></span><div class="lab">${d.lab}</div><div class="val">${d.val}${d.small?`<small> ${d.small}</small>`:''}</div></div>`).join('');
+  document.getElementById('stats').innerHTML=data.map(d=>`<div class="stat ${d.cls}"><span class="bar"></span><div class="lab">${d.lab}</div><div class="val${d.priv?' private':''}" title="${d.priv?'마우스를 올리면 보여요':''}">${d.val}${d.small?`<small> ${d.small}</small>`:''}</div></div>`).join('');
 }
-function thisWeekSecs(){ const ws=weekStartStr(todayStr()); return Math.max(0, sessions.filter(s=>weekStartStr(s.date)===ws).reduce((a,s)=>a+s.secs,0)); }
+function thisWeekSecs(){ const ws=weekStartStr(todayStr()); return Math.max(0, activeSessions().filter(s=>weekStartStr(s.date)===ws).reduce((a,s)=>a+s.secs,0)); }
 
 /* filters/list */
 function renderFilters(){ const opts=['전체','예약','진행','완료'],lab={전체:'전체',예약:'대기 예약',진행:'진행 중',완료:'완료'}; document.getElementById('filters').innerHTML=opts.map(o=>`<button class="chip ${filter===o?'active':''}" onclick="setFilter('${o}')">${lab[o]}</button>`).join(''); }
@@ -741,7 +744,7 @@ function sortJobs(arr){ const sel=document.getElementById('sortSel').value,prio=
 const SITE_STYLE={'크레페':['#fce4ea','#c0395f'],'윗치폼':['#ece6fb','#6f4fc0'],'아트머그':['#fbeada','#b56a1e'],'카카오톡':['#fbf0c4','#8a6a00'],'DM':['#e3ecfb','#3d6fce'],'Twitter':['#e0f0fb','#1f86c7']};
 function siteBadge(site){ if(!site)return ''; const c=SITE_STYLE[site]; return `<span class="tag site2"${c?` style="background:${c[0]};color:${c[1]}"`:''}>${esc(site)}</span>`; }
 function jobCard(j){
-  const dl=ddayLabel(j.deadline),done=j.status==='완료',net=netAmount(j),timing=activeTimer&&activeTimer.jobId===j.id,hi=j.priority==='높음'&&!done;
+  const dl=ddayLabel(j.deadline),cxl=j.status==='취소',done=j.status==='완료'||cxl,net=netAmount(j),timing=activeTimer&&activeTimer.jobId===j.id,hi=j.priority==='높음'&&!done;
   return `<div class="job ${done?'done':''} ${timing?'timing':''} ${hi?'hi':''}">
     <span class="pbar ${j.priority}"></span>
     <button class="check ${done?'on':''}" onclick="toggleDone('${j.id}')" title="완료 토글"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>
@@ -752,13 +755,13 @@ function jobCard(j){
         ${siteBadge(j.site)}
         ${j.cat?`<span>${esc(j.cat)}</span>`:''}
         ${net?`<span class="amt">${won(net)}</span>`:''}
-        <span class="pay ${done?'paid':'unpaid'}">${done?'입금':'미입금'}</span>
+        ${cxl?`<span class="pay cancel">취소됨</span>`:`<span class="pay ${done?'paid':'unpaid'}">${done?'입금':'미입금'}</span>`}
       </div>
       <div class="j-sub">
         <span>${j.deadline?j.deadline.replace(/-/g,'.'):'마감일 없음'}</span>
         ${dl&&!done?`<span class="tag dday ${dl.cls}">${dl.t}</span>`:''}
         ${!done?`<span class="st">${j.status==='예약'?'대기':'진행 중'}</span>`:''}
-        ${j.secs?`<span>⏱ ${fmtHM(j.secs)}</span>`:''}
+        ${j.secs&&!cxl?`<span>⏱ ${fmtHM(j.secs)}</span>`:''}
       </div>
     </div>
     <div class="j-side"><div class="j-actions">
@@ -770,7 +773,7 @@ function jobCard(j){
 }
 function onSearch(v){ searchQ=v; renderList(); }
 function setLayout(l){ listLayout=l; document.getElementById('lt-list').classList.toggle('on',l==='list'); document.getElementById('lt-tile').classList.toggle('on',l==='tile'); renderList(); }
-function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>j.status===filter);
+function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>filter==='완료'?(j.status==='완료'||j.status==='취소'):j.status===filter);
   const q=(searchQ||'').trim().toLowerCase();
   if(q) arr=arr.filter(j=>(j.title||'').toLowerCase().includes(q)||(j.client||'').toLowerCase().includes(q));
   arr=sortJobs(arr);
@@ -792,7 +795,7 @@ function renderCal(){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, dow=(startDow+d-1)%7;
     const dj=jobs.filter(j=>j.deadline===ds), sec=dmap[ds]||0;
     cells+=`<div class="cal-cell ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="selectDay('${ds}')">
-      <div class="cal-num">${d}</div>${dj.slice(0,2).map(j=>`<div class="cal-task ${j.status==='완료'?'done':''}" title="${esc(j.title)}">${esc(j.title)}</div>`).join('')}${dj.length>2?`<div class="cal-more">+${dj.length-2}</div>`:''}${dj.length?`<span class="cal-dot"></span>`:''}</div>`;
+      <div class="cal-num">${d}</div>${dj.slice(0,2).map(j=>`<div class="cal-task ${(j.status==='완료'||j.status==='취소')?'done':''}" title="${esc(j.title)}">${esc(j.title)}</div>`).join('')}${dj.length>2?`<div class="cal-more">+${dj.length-2}</div>`:''}${dj.length?`<span class="cal-dot"></span>`:''}</div>`;
   }
   document.getElementById('calView').innerHTML=`
     <div class="cal-card">
@@ -824,8 +827,8 @@ function renderDayPanel(){
 function setStatPeriod(p){ statPeriod=p; renderStatsView(); }
 function statNav(d){ if(statPeriod==='month'){ statM+=d; if(statM<0){statM=11;statY--;} if(statM>11){statM=0;statY++;} } else if(statPeriod==='year'){ statY+=d; } renderStatsView(); }
 function wonShort(n){ n=Math.round(n||0); if(n>=10000){ const v=Math.round(n/1000)/10; return (v%1?v:Math.round(v))+'만'; } return n.toLocaleString('ko-KR'); }
-function periodJobs(){ return jobs.filter(j=>{ if(statPeriod==='all')return true; if(!j.deadline)return false; const y=+j.deadline.slice(0,4),m=+j.deadline.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }); }
-function periodSecs(){ return Math.max(0, sessions.filter(s=>{ if(statPeriod==='all')return true; const y=+s.date.slice(0,4),m=+s.date.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }).reduce((a,s)=>a+s.secs,0)); }
+function periodJobs(){ return jobs.filter(j=>{ if(j.status==='취소')return false; if(statPeriod==='all')return true; if(!j.deadline)return false; const y=+j.deadline.slice(0,4),m=+j.deadline.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }); }
+function periodSecs(){ return Math.max(0, activeSessions().filter(s=>{ if(statPeriod==='all')return true; const y=+s.date.slice(0,4),m=+s.date.slice(5,7)-1; if(statPeriod==='year')return y===statY; return y===statY&&m===statM; }).reduce((a,s)=>a+s.secs,0)); }
 function barChart(items,colorClass,showVal){ const max=Math.max(1,...items.map(i=>i.val)); return `<div class="bars">${items.map(i=>`<div class="bar-col"><div class="bar-val">${showVal&&i.val?i.top:''}</div><div class="bar-v ${colorClass}" style="height:${i.val?Math.max(5,Math.round(i.val/max*82)):0}%" title="${i.lab}: ${i.top}"></div><div class="bar-lab">${i.lab}</div></div>`).join('')}</div>`; }
 function platformTable(pj){
   const m={}; pj.forEach(j=>{ const s=(j.site||'').trim()||'기타'; if(!m[s])m[s]={c:0,net:0}; m[s].c++; m[s].net+=netAmount(j); });
@@ -875,7 +878,7 @@ function renderStatsView(){
 
 /* client view */
 function renderClient(){
-  const map={}; jobs.forEach(j=>{ const name=(j.client||'').trim()||'(이름 없음)'; if(!map[name])map[name]={count:0,net:0,paid:0,secs:0}; const n=netAmount(j); map[name].count++; map[name].net+=n; if(j.status==='완료')map[name].paid+=n; map[name].secs+=Number(j.secs)||0; });
+  const map={}; jobs.forEach(j=>{ if(j.status==='취소')return; const name=(j.client||'').trim()||'(이름 없음)'; if(!map[name])map[name]={count:0,net:0,paid:0,secs:0}; const n=netAmount(j); map[name].count++; map[name].net+=n; if(j.status==='완료')map[name].paid+=n; map[name].secs+=Number(j.secs)||0; });
   const arr=Object.entries(map).sort((a,b)=>b[1].net-a[1].net);
   const el=document.getElementById('clientView');
   if(!arr.length){ el.innerHTML=`<div class="empty"><div class="big">신청자 정보가 없어요</div><div>작업에 <b>신청자 이름</b>을 입력하면 여기서 신청자별 총 정산액이 정리됩니다.</div></div>`; return; }
@@ -888,6 +891,7 @@ function setView(v){ view=v;
   document.getElementById('calView').style.display=v==='cal'?'':'none';
   document.getElementById('listView').style.display=v==='list'?'flex':'none';
   document.getElementById('statsView').style.display=v==='stats'?'block':'none';
+  document.getElementById('stats').classList.toggle('reveal',v==='stats');
   document.getElementById('timerView').style.display=v==='timer'?'block':'none';
   document.getElementById('focusView').style.display=v==='focus'?'block':'none';
   document.getElementById('clientView').style.display=v==='client'?'block':'none';
@@ -931,7 +935,7 @@ function saveForm(){
   if(delta!==0){ sessions.push({id:uid(),date:todayStr(),secs:Math.round(delta),jobId:saved.id}); saveSessions(); }
   saveJobs(); closeForm(); render(); syncUp(saved);
 }
-function toggleDone(id){ const j=jobs.find(x=>x.id===id); j.status=j.status==='완료'?'진행':'완료'; saveJobs(); render(); syncUp(j); }
+function toggleDone(id){ const j=jobs.find(x=>x.id===id); j.status=(j.status==='완료'||j.status==='취소')?'진행':'완료'; saveJobs(); render(); syncUp(j); }
 function delJob(id){ const j=jobs.find(x=>x.id===id); if(!confirm(`'${j.title}' 작업을 삭제할까요?`))return;
   if(activeTimer&&activeTimer.jobId===id){ activeTimer=null; clearInterval(timerInterval); timerInterval=null; saveTimerState(); renderTimerBar(); }
   gcalDelete(j); jobs=jobs.filter(x=>x.id!==id); sessions=sessions.filter(s=>s.jobId!==id); saveSessions(); saveJobs(); render(); }
@@ -974,7 +978,7 @@ function stagePrev(){ const j=jobs.find(x=>x.id===timerSel); if(!j)return;
   if(j.status==='완료')j.status='진행'; else j.stage=Math.max(0,(j.stage||0)-1);
   saveJobs(); syncUp(j); renderTimer(); renderStats(); }
 function renderTimer(){ const el=document.getElementById('timerView'); if(!el)return;
-  const list=sortJobs(jobs.filter(j=>j.status!=='완료'));
+  const list=sortJobs(jobs.filter(j=>j.status!=='완료'&&j.status!=='취소'));
   if(timerSel&&!jobs.find(j=>j.id===timerSel))timerSel=null;
   if(!timerSel&&list.length)timerSel=list[0].id;
   const j=jobs.find(x=>x.id===timerSel);
@@ -999,7 +1003,7 @@ function renderTimer(){ const el=document.getElementById('timerView'); if(!el)re
 }
 let focusTotal=25*60, focusRemain=25*60, focusRunning=false, focusInt=null, focusPreset=25, focusDoneToday=0;
 function renderFocus(){
-  const jobOpts=jobs.filter(j=>j.status!=='완료').map(j=>`<option value="${j.id}">${esc(j.title)}</option>`).join('');
+  const jobOpts=jobs.filter(j=>j.status!=='완료'&&j.status!=='취소').map(j=>`<option value="${j.id}">${esc(j.title)}</option>`).join('');
   const R=100;
   document.getElementById('focusView').innerHTML=`<div class="focus-wrap"><div class="focus-card">
     <div class="focus-presets"><button class="fp ${focusPreset===25?'on':''}" onclick="setFocusPreset(25)">25분</button><button class="fp ${focusPreset===50?'on':''}" onclick="setFocusPreset(50)">50분</button><button class="fp ${focusPreset===5?'on':''}" onclick="setFocusPreset(5)">5분 휴식</button><button class="fp ${focusPreset==='custom'?'on':''}" onclick="setFocusPreset('custom')">직접</button></div>
