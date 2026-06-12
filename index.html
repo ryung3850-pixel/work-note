@@ -603,6 +603,7 @@
       <div class="sg"><span class="lab">구글 캘린더</span>
         <button class="sync-btn primary-sync" id="gcalBtn" onclick="gcalConnect()">실시간 연동</button>
         <button class="sync-btn" onclick="gcalPull()">↻ 받기</button>
+        <button class="sync-btn" onclick="gcalPushAll()" title="내 기록 전체를 구글 캘린더에 덮어씁니다">↑ 보내기</button>
         <button class="sync-btn quiet" onclick="openGcalSetup()">설정</button>
         <span class="gcal-status" id="gcalStatus">연결 안 됨</span></div>
       <span class="sep"></span>
@@ -670,7 +671,8 @@
 
 <script>
 const STORE_KEY='work_jobs_v1', TIMER_KEY='work_timer_v1', SESS_KEY='work_sessions_v1';
-let jobs=[], sessions=[], view='cal', filter='진행', editingId=null, priorityPick='보통', searchQ='', listLayout='list';
+let jobs=[], sessions=[], view='cal', filter='진행', editingId=null, priorityPick='보통', searchQ='', listLayout='list', deletedIds=[];
+function markDeleted(id){ if(!deletedIds.includes(id)){ deletedIds.push(id); if(deletedIds.length>800)deletedIds=deletedIds.slice(-800); setSetting('deleted_ids',JSON.stringify(deletedIds)); } }
 let calMonth=(()=>{const d=new Date();return {y:d.getFullYear(),m:d.getMonth()};})();
 let calSel=null;
 let statPeriod='month', statY=new Date().getFullYear(), statM=new Date().getMonth();
@@ -938,7 +940,7 @@ function saveForm(){
 function toggleDone(id){ const j=jobs.find(x=>x.id===id); j.status=(j.status==='완료'||j.status==='취소')?'진행':'완료'; saveJobs(); render(); syncUp(j); }
 function delJob(id){ const j=jobs.find(x=>x.id===id); if(!confirm(`'${j.title}' 작업을 삭제할까요?`))return;
   if(activeTimer&&activeTimer.jobId===id){ activeTimer=null; clearInterval(timerInterval); timerInterval=null; saveTimerState(); renderTimerBar(); }
-  gcalDelete(j); jobs=jobs.filter(x=>x.id!==id); sessions=sessions.filter(s=>s.jobId!==id); saveSessions(); saveJobs(); render(); }
+  gcalDelete(j); markDeleted(id); jobs=jobs.filter(x=>x.id!==id); sessions=sessions.filter(s=>s.jobId!==id); saveSessions(); saveJobs(); render(); }
 
 /* commission timer */
 async function loadTimer(){ try{const r=await store.get(TIMER_KEY); activeTimer=r&&r.value?JSON.parse(r.value):null;}catch(e){activeTimer=null;} }
@@ -1076,15 +1078,25 @@ async function gcalConnect(){ CLIENT_ID=await getSetting('gcal_client_id')||CLIE
     tokenClient.requestAccessToken({prompt:gcalConnected?'':'consent'});
   }catch(e){ setGcalStatus('err','연결 실패'); toast('연결 중 오류가 발생했어요'); } }
 function setGcalStatus(cls,txt){ const el=document.getElementById('gcalStatus'); if(!el)return; el.className='gcal-status '+(cls||''); el.textContent=txt; const btn=document.getElementById('gcalBtn'); if(btn){ btn.classList.toggle('on',cls==='ok'); btn.textContent=cls==='ok'?'재연결':'실시간 연동'; } }
-function jobToEvent(j){ const net=netAmount(j); return { summary:`[커미션] ${j.title}${net?` (${won(net)})`:''}`, description:jobDesc(j), start:{date:j.deadline}, end:{date:nextDay(j.deadline)}, extendedProperties:{private:{wc_app:'whipcarrot',wc_id:j.id,wc_data:JSON.stringify({...j,gcalId:undefined})}} }; }
+function jobToEvent(j){ const net=netAmount(j); const pre=j.status==='완료'?'[완료] ':j.status==='취소'?'[취소] ':''; return { summary:`${pre}[커미션] ${j.title}${net&&j.status!=='취소'?` (${won(net)})`:''}`, description:jobDesc(j), start:{date:j.deadline}, end:{date:nextDay(j.deadline)}, extendedProperties:{private:{wc_app:'whipcarrot',wc_id:j.id,wc_data:JSON.stringify({...j,gcalId:undefined})}} }; }
 async function gcalUpsert(job){ if(!gcalReady()||!job.deadline)return; try{ if(job.gcalId){ await gapi.client.calendar.events.update({calendarId:'primary',eventId:job.gcalId,resource:jobToEvent(job)}); } else { const r=await gapi.client.calendar.events.insert({calendarId:'primary',resource:jobToEvent(job)}); job.gcalId=r.result.id; saveJobs(); } }catch(e){ handleGcalErr(e); } }
 async function gcalDelete(job){ if(!gcalReady()||!job.gcalId)return; try{ await gapi.client.calendar.events.delete({calendarId:'primary',eventId:job.gcalId}); }catch(e){ handleGcalErr(e); } }
 async function gcalPushAll(){ if(!gcalReady())return; for(const j of jobs.filter(x=>x.deadline&&!x.gcalId)){ await gcalUpsert(j); } }
 async function gcalPull(){ if(!gcalReady()){ if(!gcalConnected) toast('먼저 구글 캘린더에 연결해 주세요'); return; }
   try{ const r=await gapi.client.calendar.events.list({calendarId:'primary',privateExtendedProperty:'wc_app=whipcarrot',maxResults:2500,showDeleted:false,singleEvents:true});
-    const items=r.result.items||[]; const remote=items.map(ev=>{ try{ const j=JSON.parse(ev.extendedProperties.private.wc_data); j.gcalId=ev.id; return j; }catch(e){ return null; } }).filter(Boolean);
-    const byId=new Map(jobs.map(j=>[j.id,j])); remote.forEach(rj=>byId.set(rj.id,rj)); jobs=[...byId.values()]; normalize(); saveJobs(); render(); toast(`구글 캘린더에서 ${remote.length}건 동기화됨`);
+    const items=r.result.items||[]; const local=new Map(jobs.map(j=>[j.id,j])); let added=0,removed=0;
+    for(const ev of items){ let rj; try{ rj=JSON.parse(ev.extendedProperties.private.wc_data); }catch(e){ continue; }
+      if(deletedIds.includes(rj.id)){ try{ await gapi.client.calendar.events.delete({calendarId:'primary',eventId:ev.id}); removed++; }catch(e){} continue; }
+      const lj=local.get(rj.id);
+      if(lj){ if(!lj.gcalId) lj.gcalId=ev.id; /* 내 기록 우선: 구글 복사본으로 덮어쓰지 않음 */ }
+      else { rj.gcalId=ev.id; jobs.push(rj); added++; }
+    }
+    normalize(); saveJobs(); render(); toast(`받기 완료 · 새 작업 ${added}건 추가${removed?` · ${removed}건 정리`:''} (내 기록 우선)`);
   }catch(e){ handleGcalErr(e); } }
+async function gcalPushAll(){ if(!gcalReady()){ if(!gcalConnected) toast('먼저 구글 캘린더에 연결해 주세요'); return;
+  } let n=0; toast('구글 캘린더로 내보내는 중…');
+  for(const j of jobs){ if(j.deadline){ await gcalUpsert(j); n++; } }
+  toast(`구글 캘린더를 내 기록으로 맞췄어요 (${n}건)`); }
 function handleGcalErr(e){ const code=e&&e.status; console.warn('gcal error', code, e);
   if(code===401){ gcalConnected=false; setGcalStatus('err','인증 만료 · 다시 연결'); toast('구글 인증이 만료됐어요. 다시 연결해 주세요.'); }
   else if(code===403){ gcalConnected=false; setGcalStatus('err','권한 오류'); toast('캘린더 권한 오류예요. Google Cloud에서 Calendar API를 켰는지 확인해 주세요.'); }
@@ -1102,6 +1114,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeForm(); clos
 (async()=>{
   accentName=await getSetting('accent')||'brick'; applyTheme();
   await loadJobs(); await loadSessions(); await loadTimer();
+  try{ deletedIds=JSON.parse(await getSetting('deleted_ids')||'[]'); }catch(e){ deletedIds=[]; }
   if(!(await getSetting('seed_clean2'))){ const before=sessions.length; sessions=sessions.filter(s=>s.jobId); if(sessions.length!==before) await saveSessions(); await setSetting('seed_clean2','1'); }
   calSel=todayStr();
   if(!jobs.length){ const today=new Date(), plus=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
