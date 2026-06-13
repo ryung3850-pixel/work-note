@@ -1065,6 +1065,17 @@ function loadScript(src){ return new Promise((res,rej)=>{ const s=document.creat
 function loadGoogleLibs(){ if(googleLibsPromise)return googleLibsPromise; googleLibsPromise=Promise.all([loadScript('https://apis.google.com/js/api.js'),loadScript('https://accounts.google.com/gsi/client')]).catch(e=>{ googleLibsPromise=null; throw e; }); return googleLibsPromise; }
 function gcalLibReady(){ return typeof google!=='undefined'&&google.accounts&&typeof gapi!=='undefined'; }
 function gcalReady(){ return gapiInited&&gcalConnected&&typeof gapi!=='undefined'&&gapi.client&&gapi.client.getToken(); }
+function saveGcalToken(resp){ try{ if(resp&&resp.access_token){ setSetting('gcal_token', JSON.stringify({t:resp.access_token, exp:Date.now()+((Number(resp.expires_in)||3600)-90)*1000})); } }catch(e){} }
+async function restoreGcal(){ try{
+  if(!CLIENT_ID) return;
+  const raw=await getSetting('gcal_token'); if(!raw) return;
+  let tk; try{ tk=JSON.parse(raw); }catch(e){ return; }
+  if(!tk||!tk.t||Date.now()>tk.exp){ return; }
+  await loadGoogleLibs(); if(!gcalLibReady()) return;
+  if(!gapiInited) await loadGapiClient();
+  gapi.client.setToken({access_token:tk.t});
+  gcalConnected=true; setGcalStatus('ok','연결됨 · 실시간 동기화');
+}catch(e){ /* 조용히 무시: 버튼으로 수동 연결 가능 */ } }
 function loadGapiClient(){ return new Promise((res,rej)=>{ gapi.load('client',async()=>{ try{ await gapi.client.init({discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']}); gapiInited=true; res(); }catch(e){ rej(e); } }); }); }
 function openGcalSetup(){ getSetting('gcal_client_id').then(id=>{document.getElementById('g_client').value=id||'';}); document.getElementById('gcalOverlay').classList.add('show'); }
 function closeGcalSetup(){ document.getElementById('gcalOverlay').classList.remove('show'); }
@@ -1074,14 +1085,18 @@ async function gcalConnect(){ CLIENT_ID=await getSetting('gcal_client_id')||CLIE
   try{ await loadGoogleLibs(); }catch(e){ setGcalStatus('err','연결 안 됨'); toast('구글 라이브러리를 불러오지 못했어요. 배포 주소에서 실행 중인지 확인해 주세요.'); return; }
   if(!gcalLibReady()){ setGcalStatus('err','연결 안 됨'); toast('구글 라이브러리 준비 안 됨 — 깃허브에 배포한 주소에서 실행해 주세요.'); return; }
   try{ if(!gapiInited) await loadGapiClient();
-    if(!tokenClient){ tokenClient=google.accounts.oauth2.initTokenClient({ client_id:CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events', callback:async(resp)=>{ if(resp.error){ setGcalStatus('err','인증 실패'); toast('구글 인증에 실패했어요'); return; } gcalConnected=true; setGcalStatus('ok','연결됨 · 동기화 중…'); await gcalPull(); await gcalPushAll(); setGcalStatus('ok','연결됨 · 실시간 동기화'); } }); }
+    if(!tokenClient){ tokenClient=google.accounts.oauth2.initTokenClient({ client_id:CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events', callback:async(resp)=>{ if(resp.error){ setGcalStatus('err','인증 실패'); toast('구글 인증에 실패했어요'); return; } gcalConnected=true; saveGcalToken(resp); setGcalStatus('ok','연결됨 · 동기화 중…'); await gcalPull(); await gcalPushNew(); setGcalStatus('ok','연결됨 · 실시간 동기화'); } }); }
     tokenClient.requestAccessToken({prompt:gcalConnected?'':'consent'});
   }catch(e){ setGcalStatus('err','연결 실패'); toast('연결 중 오류가 발생했어요'); } }
 function setGcalStatus(cls,txt){ const el=document.getElementById('gcalStatus'); if(!el)return; el.className='gcal-status '+(cls||''); el.textContent=txt; const btn=document.getElementById('gcalBtn'); if(btn){ btn.classList.toggle('on',cls==='ok'); btn.textContent=cls==='ok'?'재연결':'실시간 연동'; } }
 function jobToEvent(j){ const net=netAmount(j); const pre=j.status==='완료'?'[완료] ':j.status==='취소'?'[취소] ':''; return { summary:`${pre}[커미션] ${j.title}${net&&j.status!=='취소'?` (${won(net)})`:''}`, description:jobDesc(j), start:{date:j.deadline}, end:{date:nextDay(j.deadline)}, extendedProperties:{private:{wc_app:'whipcarrot',wc_id:j.id,wc_data:JSON.stringify({...j,gcalId:undefined})}} }; }
-async function gcalUpsert(job){ if(!gcalReady()||!job.deadline)return; try{ if(job.gcalId){ await gapi.client.calendar.events.update({calendarId:'primary',eventId:job.gcalId,resource:jobToEvent(job)}); } else { const r=await gapi.client.calendar.events.insert({calendarId:'primary',resource:jobToEvent(job)}); job.gcalId=r.result.id; saveJobs(); } }catch(e){ handleGcalErr(e); } }
+async function gcalUpsert(job){ if(!gcalReady()||!job.deadline)return;
+  try{
+    if(job.gcalId){ try{ await gapi.client.calendar.events.update({calendarId:'primary',eventId:job.gcalId,resource:jobToEvent(job)}); return; }catch(e){ if(e&&(e.status===404||e.status===410)){ job.gcalId=null; } else throw e; } }
+    const r=await gapi.client.calendar.events.insert({calendarId:'primary',resource:jobToEvent(job)}); job.gcalId=r.result.id; saveJobs();
+  }catch(e){ handleGcalErr(e); } }
 async function gcalDelete(job){ if(!gcalReady()||!job.gcalId)return; try{ await gapi.client.calendar.events.delete({calendarId:'primary',eventId:job.gcalId}); }catch(e){ handleGcalErr(e); } }
-async function gcalPushAll(){ if(!gcalReady())return; for(const j of jobs.filter(x=>x.deadline&&!x.gcalId)){ await gcalUpsert(j); } }
+async function gcalPushNew(){ if(!gcalReady())return; for(const j of jobs.filter(x=>x.deadline&&!x.gcalId)){ await gcalUpsert(j); } }
 async function gcalPull(){ if(!gcalReady()){ if(!gcalConnected) toast('먼저 구글 캘린더에 연결해 주세요'); return; }
   try{ const r=await gapi.client.calendar.events.list({calendarId:'primary',privateExtendedProperty:'wc_app=whipcarrot',maxResults:2500,showDeleted:false,singleEvents:true});
     const items=r.result.items||[]; const local=new Map(jobs.map(j=>[j.id,j])); let added=0,removed=0;
@@ -1098,8 +1113,10 @@ async function gcalPushAll(){ if(!gcalReady()){ if(!gcalConnected) toast('먼저
   for(const j of jobs){ if(j.deadline){ await gcalUpsert(j); n++; } }
   toast(`구글 캘린더를 내 기록으로 맞췄어요 (${n}건)`); }
 function handleGcalErr(e){ const code=e&&e.status; console.warn('gcal error', code, e);
-  if(code===401){ gcalConnected=false; setGcalStatus('err','인증 만료 · 다시 연결'); toast('구글 인증이 만료됐어요. 다시 연결해 주세요.'); }
-  else if(code===403){ gcalConnected=false; setGcalStatus('err','권한 오류'); toast('캘린더 권한 오류예요. Google Cloud에서 Calendar API를 켰는지 확인해 주세요.'); }
+  if(code===401){ gcalConnected=false; setSetting('gcal_token',''); setGcalStatus('err','인증 만료 · 다시 연결'); toast('구글 인증이 만료됐어요. 다시 연결해 주세요.'); }
+  else if(code===403){ const reason=e&&e.result&&e.result.error&&e.result.error.errors&&e.result.error.errors[0]&&e.result.error.errors[0].reason||'';
+    if(/rateLimit|quota|userRateLimit/i.test(reason)){ toast('요청이 많아 잠시 후 다시 시도해 주세요'); }
+    else { gcalConnected=false; setGcalStatus('err','권한 오류'); toast('캘린더 권한 오류예요. Google Cloud에서 Calendar API를 켰는지 확인해 주세요.'); } }
   else { toast('구글 캘린더 통신 오류'); } }
 function syncUp(job){ if(gcalReady()) gcalUpsert(job); }
 
@@ -1129,6 +1146,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeForm(); clos
   if(activeTimer&&!jobs.find(j=>j.id===activeTimer.jobId)){ activeTimer=null; saveTimerState(); }
   render(); renderTimerBar(); if(activeTimer&&activeTimer.startedAt) startTick();
   CLIENT_ID=await getSetting('gcal_client_id')||''; setGcalStatus('', CLIENT_ID?'설정됨 · 연결하려면 클릭':'연결 안 됨 (설정 필요)');
+  restoreGcal();
 })();
 </script>
 </body>
