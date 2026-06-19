@@ -7,21 +7,23 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2252%22 font-size=%2278%22 text-anchor=%22middle%22 dominant-baseline=%22central%22>🎨</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Jua&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Jua&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" rel="stylesheet">
 <style>
   :root{
     color-scheme:light;
-    --bg:#f3ede1; --surface:#fbf8f1; --surface-2:#fffdf8; --elev:#ffffff;
-    --ink:#2b2620; --ink-soft:#5a5247; --muted:#938a7b;
-    --line:#e3d9c6; --line-soft:#ece3d2;
-    --accent:#b5462f; --accent-ink:#8a3320; --accent-hover:#8a3320; --on-accent:#fff; --accent-text:#b5462f;
-    --money:#3f6b5e; --warn:#bd8a2c;
-    --bg-grad1:#f7f1e6; --bg-grad2:#f0e7d6;
-    --dock-bg:#262320; --dock-fg:#f6f1e8;
-    --sun:#c0533f; --sat:#4f6ea5;
-    --shadow:0 1px 2px rgba(20,16,10,.06), 0 8px 24px -12px rgba(20,16,10,.18);
-    --shadow-lg:0 30px 60px -24px rgba(20,16,10,.45);
+    --font-display:'Hahmlet',serif;
+    --font-figure:'IBM Plex Mono',ui-monospace,'IBM Plex Sans KR',monospace;
+    --bg:#e8ebe6; --surface:#f7f9f5; --surface-2:#fcfdfb; --elev:#ffffff;
+    --ink:#1e2521; --ink-soft:#46504a; --muted:#7c857d;
+    --line:#d5dbd2; --line-soft:#e1e6dd;
+    --accent:#cf3a26; --accent-ink:#a32a17; --accent-hover:#b22f1d; --on-accent:#fff; --accent-text:#b3331f;
+    --money:#2f6f5e; --warn:#a87a1c;
+    --bg-grad1:#eef1ec; --bg-grad2:#e3e7e1;
+    --dock-bg:#1e2521; --dock-fg:#eef1ec;
+    --sun:#c2402c; --sat:#3f6a86;
+    --shadow:0 1px 2px rgba(22,30,26,.05), 0 10px 28px -16px rgba(22,30,26,.20);
+    --shadow-lg:0 30px 64px -26px rgba(22,30,26,.42);
     --accent-soft:color-mix(in srgb, var(--accent) 15%, transparent);
     --warm-chip:color-mix(in srgb, var(--accent) 10%, var(--surface));
     --cool-chip:color-mix(in srgb, var(--ink) 7%, var(--surface));
@@ -204,7 +206,7 @@
   .wrap{max-width:1060px;margin:0 auto;padding:40px 26px 104px;width:100%}
 
   header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:22px;border-bottom:1.5px solid var(--line)}
-  .brand h1{font-family:'Gowun Batang',serif;font-weight:700;font-size:29px;letter-spacing:-.01em;line-height:1.1}
+  .brand h1{font-family:var(--font-display);font-weight:700;font-size:29px;letter-spacing:-.01em;line-height:1.1}
   .brand .sub{color:var(--muted);font-size:12.5px;margin-top:6px}
   .brand .dot{color:var(--accent-text)}
   .head-right{display:flex;align-items:center;gap:12px;position:relative}
@@ -232,7 +234,7 @@
   .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:24px}
   .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .stat .lab{font-size:11px;color:var(--muted)}
-  .stat .val{font-family:'Gowun Batang',serif;font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .stat .val{font-family:var(--font-figure);font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   .stat .val.private{filter:blur(7px);transition:filter .18s ease;user-select:none}
   .stat:hover .val.private,#stats.reveal .val.private{filter:none;user-select:auto}
   .stat .val small{font-size:13px;font-weight:400;color:var(--muted)}
@@ -337,14 +339,14 @@
   .tag.dday.over{background:#7a2417;color:#fff}
   .tag.dday.ok{background:var(--neutral-chip);color:var(--ink-soft)}
   .j-side{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap}
-  .j-amt{font-family:'Gowun Batang',serif;font-weight:700;font-size:16px;color:var(--money)}
+  .j-amt{font-family:var(--font-figure);font-weight:700;font-size:16px;color:var(--money)}
   .j-amt.unpaid{color:var(--accent-text)}
   .j-hrs{font-size:11.5px;color:var(--muted)}
   .j-actions{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;justify-content:flex-end}
   .icon-btn{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:11.5px;padding:3px 7px;border-radius:6px;font-family:inherit}
   .icon-btn:hover{background:var(--line-soft);color:var(--ink)} .icon-btn.del:hover{background:var(--warm-chip);color:var(--accent-text)}
   .empty{text-align:center;padding:54px 20px;color:var(--muted)}
-  .empty .big{font-family:'Gowun Batang',serif;font-size:18px;color:var(--ink-soft);margin-bottom:6px}
+  .empty .big{font-family:var(--font-display);font-size:18px;color:var(--ink-soft);margin-bottom:6px}
 
   /* Calendar (clean) */
   .cal-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 18px;box-shadow:var(--shadow);margin-bottom:18px}
@@ -352,7 +354,7 @@
   #calView .cal-card{margin-bottom:0}
   #calView #dayPanel{position:sticky;top:18px}
   .cal-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-  .cal-head .m{font-family:'Gowun Batang',serif;font-size:21px;font-weight:700;min-width:140px}
+  .cal-head .m{font-family:var(--font-display);font-size:21px;font-weight:700;min-width:140px}
   .cal-head .navbtn{border:1px solid var(--line);background:var(--surface-2);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:17px;color:var(--ink-soft)}
   .cal-head .navbtn:hover{border-color:var(--muted)}
   .cal-head .today-btn{border:1px solid var(--line);background:var(--surface-2);font-family:inherit;font-size:12.5px;color:var(--ink-soft);padding:7px 14px;border-radius:10px;cursor:pointer}
@@ -376,8 +378,10 @@
   .legend-reset{margin-left:auto;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
   .legend-reset:hover{border-color:var(--muted);color:var(--ink-soft)}
   .day-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
-  .day-panel h3{font-family:'Gowun Batang',serif;font-size:17px;font-weight:700;margin-bottom:4px}
+  .day-panel h3{font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:4px}
   .day-panel .dsum{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .day-add{width:100%;margin-bottom:14px;padding:9px;border:1px dashed var(--line);border-radius:9px;background:transparent;color:var(--ink-soft);font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.14s}
+  .day-add:hover{border-color:var(--accent);border-style:solid;color:var(--accent-text);background:var(--accent-soft)}
   .day-list{display:flex;flex-direction:column;gap:8px}
   .day-list .job{grid-template-columns:auto minmax(0,1fr);gap:10px;padding:14px 16px}
   .day-list .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 10px;margin-top:4px;white-space:normal}
@@ -385,7 +389,8 @@
 
   /* Stats view (월별/주간) */
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
-  .panel h3{font-family:'Gowun Batang',serif;font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .panel h3{font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .panel h3::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--accent);align-self:center;flex:0 0 auto;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent)}
   .panel h3 .hint{font-family:'IBM Plex Sans KR';font-size:11.5px;color:var(--muted);font-weight:400}
   .stat-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
   .seg-toggle{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
@@ -394,10 +399,10 @@
   .stat-nav{display:inline-flex;align-items:center;gap:8px}
   .stat-nav .navbtn{border:1px solid var(--line);background:var(--surface);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;color:var(--ink-soft)}
   .stat-nav .navbtn:hover{border-color:var(--muted)}
-  .stat-nav .nl{font-family:'Gowun Batang',serif;font-size:16px;font-weight:700;min-width:96px;text-align:center}
+  .stat-nav .nl{font-family:var(--font-display);font-size:16px;font-weight:700;min-width:96px;text-align:center}
   .sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
   .sum-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);overflow:hidden}
-  .sum-card .v{font-family:'Gowun Batang',serif;font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sum-card .v{font-family:var(--font-figure);font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sum-card.total .v{color:var(--ink)} .sum-card.paid .v{color:var(--money)} .sum-card.unpaid .v{color:var(--accent-text)} .sum-card.time .v{color:var(--ink-soft)}
   .sum-card .l{font-size:12px;color:var(--muted);margin-top:5px}
   .bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:6px}
@@ -421,7 +426,7 @@
   .cli-card{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
   .cli-name{font-weight:600;font-size:15px;display:flex;align-items:center;gap:7px}
   .cli-name .av{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:12px;font-weight:700}
-  .cli-amt{font-family:'Gowun Batang',serif;font-size:21px;font-weight:700;color:var(--money);margin:10px 0 2px}
+  .cli-amt{font-family:var(--font-figure);font-size:21px;font-weight:700;color:var(--money);margin:10px 0 2px}
   .cli-meta{font-size:11.5px;color:var(--muted)}
 
   /* Focus */
@@ -435,7 +440,7 @@
   .ring-bg{fill:none;stroke:var(--line);stroke-width:11}
   .ring-fg{fill:none;stroke:var(--accent-text);stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset .35s linear}
   .focus-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .focus-time .t{font-family:'Gowun Batang',serif;font-size:46px;font-weight:700;font-variant-numeric:tabular-nums}
+  .focus-time .t{font-family:var(--font-figure);font-size:46px;font-weight:700;font-variant-numeric:tabular-nums}
   .focus-time .st{font-size:12px;color:var(--muted);margin-top:2px}
   .focus-ctrl{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
   .fbtn{font-family:inherit;font-weight:600;font-size:14px;padding:12px 26px;border-radius:12px;cursor:pointer;border:1px solid transparent;transition:.15s}
@@ -453,7 +458,7 @@
   .modal{background:var(--surface);border-radius:18px;width:100%;max-width:480px;box-shadow:var(--shadow-lg);border:1px solid var(--line);animation:pop .22s ease}
   @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
   .modal-head{padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-  .modal-head h2{font-family:'Gowun Batang',serif;font-size:19px;font-weight:700}
+  .modal-head h2{font-family:var(--font-display);font-size:19px;font-weight:700}
   .modal-head .x{border:none;background:transparent;font-size:22px;color:var(--muted);cursor:pointer;line-height:1}
   .modal-body{padding:18px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .field{display:flex;flex-direction:column;gap:5px}
@@ -484,7 +489,7 @@
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(127,209,168,.55)}70%{box-shadow:0 0 0 9px rgba(127,209,168,0)}100%{box-shadow:0 0 0 0 rgba(127,209,168,0)}}
   .tb-job{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
   .tb-sub{font-size:11px;color:#b7ada0;margin-top:1px}
-  .tb-time{font-family:'Gowun Batang',serif;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;min-width:118px;text-align:center}
+  .tb-time{font-family:var(--font-figure);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;min-width:118px;text-align:center}
   .tb-ctrl{display:flex;gap:7px}
   .tb-btn{border:1px solid rgba(246,241,232,.22);background:rgba(246,241,232,.08);color:var(--dock-fg);font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:9px;cursor:pointer;transition:.15s;white-space:nowrap}
   .tb-btn:hover{background:rgba(246,241,232,.16)}
@@ -505,7 +510,7 @@
   .tproj-bar{height:4px;border-radius:3px;background:var(--line-soft);margin-top:9px;overflow:hidden}
   .tproj-bar span{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .2s}
   .tpane{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);min-width:0}
-  .tdetail-head{font-size:18px;font-weight:700;letter-spacing:-.01em;font-family:'Gowun Batang',serif;word-break:break-word}
+  .tdetail-head{font-size:18px;font-weight:700;letter-spacing:-.01em;font-family:var(--font-display);word-break:break-word}
   .tstepper{display:flex;align-items:center;gap:6px;margin:18px 0 4px}
   .tstep{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
   .tstep-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--surface-2);border:1.5px solid var(--line);color:var(--muted)}
@@ -821,6 +826,7 @@ function renderDayPanel(){
   el.className='day-panel';
   el.innerHTML=`<h3>${dt.getMonth()+1}월 ${dt.getDate()}일 (${dows[dt.getDay()]})</h3>
     <div class="dsum">이 날 작업시간 ${fmtHM(sec)} · 마감 ${dayJobs.length}건</div>
+    <button class="day-add" onclick="openForm(null,'${ds}')">＋ 이 날 작업 추가</button>
     ${dayJobs.length?`<div class="day-list">${dayJobs.map(jobCard).join('')}</div>`:`<div class="empty" style="padding:24px"><div>이 날짜에 마감인 작업이 없어요.</div></div>`}`;
 }
 
@@ -907,13 +913,14 @@ function setView(v){ view=v;
 }
 
 /* form */
-function openForm(id){ editingId=id||null; const j=id?jobs.find(x=>x.id===id):null;
+function openForm(id, presetDate){ editingId=id||null; const j=id?jobs.find(x=>x.id===id):null;
+  const preset=presetDate||(view==='cal'&&calSel?calSel:'');
   document.getElementById('modalTitle').textContent=j?'작업 수정':'작업 추가';
   document.getElementById('f_title').value=j?j.title:'';
   document.getElementById('f_client').value=j?(j.client||''):'';
   document.getElementById('f_site').value=j?(j.site||''):'';
   document.getElementById('f_cat').value=j?(j.cat||'SD'):'SD';
-  document.getElementById('f_deadline').value=j?(j.deadline||(view==='cal'&&calSel?calSel:'')):(view==='cal'&&calSel?calSel:'');
+  document.getElementById('f_deadline').value=j?(j.deadline||preset):preset;
   document.getElementById('f_status').value=j?j.status:'예약';
   const secs=j?(j.secs||0):0; document.getElementById('f_h').value=secs?Math.floor(secs/3600):''; document.getElementById('f_m').value=secs?Math.floor(secs%3600/60):'';
   document.getElementById('f_amount').value=j?(j.amount||''):'';
@@ -1132,17 +1139,15 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeForm(); clos
   accentName=await getSetting('accent')||'brick'; applyTheme();
   await loadJobs(); await loadSessions(); await loadTimer();
   try{ deletedIds=JSON.parse(await getSetting('deleted_ids')||'[]'); }catch(e){ deletedIds=[]; }
+  if(!(await getSetting('seed_jobs_purge'))){
+    const sig=[['SD 일러스트 1종','홍길동','크레페',60000],['LD 반신 채색','김작가','윗치폼',120000],['SD 이모티콘 4종','홍길동','카카오톡',80000]];
+    const isSeed=j=>sig.some(s=>j.title===s[0]&&j.client===s[1]&&j.site===s[2]&&Number(j.amount)===s[3]);
+    const purge=jobs.filter(isSeed);
+    if(purge.length){ purge.forEach(j=>markDeleted(j.id)); jobs=jobs.filter(j=>!isSeed(j)); await saveJobs(); }
+    await setSetting('seed_jobs_purge','1');
+  }
   if(!(await getSetting('seed_clean2'))){ const before=sessions.length; sessions=sessions.filter(s=>s.jobId); if(sessions.length!==before) await saveSessions(); await setSetting('seed_clean2','1'); }
   calSel=todayStr();
-  if(!jobs.length){ const today=new Date(), plus=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
-    jobs=[
-      {id:uid(),created:Date.now(),title:'SD 일러스트 1종',client:'홍길동',site:'크레페',cat:'SD',deadline:plus(2),status:'진행',priority:'높음',secs:3*3600,amount:60000},
-      {id:uid(),created:Date.now()+1,title:'LD 반신 채색',client:'김작가',site:'윗치폼',cat:'LD',deadline:plus(5),status:'예약',priority:'보통',secs:0,amount:120000},
-      {id:uid(),created:Date.now()+2,title:'SD 이모티콘 4종',client:'홍길동',site:'카카오톡',cat:'SD',deadline:plus(-1),status:'완료',priority:'낮음',secs:6*3600,amount:80000},
-    ];
-    sessions=[];
-    await saveJobs(); await saveSessions();
-  }
   if(activeTimer&&!jobs.find(j=>j.id===activeTimer.jobId)){ activeTimer=null; saveTimerState(); }
   render(); renderTimerBar(); if(activeTimer&&activeTimer.startedAt) startTick();
   CLIENT_ID=await getSetting('gcal_client_id')||''; setGcalStatus('', CLIENT_ID?'설정됨 · 연결하려면 클릭':'연결 안 됨 (설정 필요)');
