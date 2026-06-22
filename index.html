@@ -372,7 +372,7 @@
   .cal-task{font-size:10px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;background:var(--accent-soft);color:var(--accent-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
   .cal-task.done{opacity:.5;text-decoration:line-through}
   .cal-task.hi{background:var(--accent);color:var(--on-accent);font-weight:600;box-shadow:0 1px 5px -1px color-mix(in srgb,var(--accent) 55%,transparent)}
-  .cal-confirm{font-size:9.5px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;border:1px dashed var(--line);color:var(--muted);background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
+  .cal-confirm{font-size:9.5px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--ink-soft);background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
   .cal-cdot{display:none;position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:transparent;border:1.5px dashed var(--muted)}
   .cal-more{font-size:9.5px;color:var(--muted);margin-top:2px;padding-left:4px}
   .cal-dot{display:none;position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
@@ -802,16 +802,17 @@ function confirmDates(j){
   const st=new Date(j.created); if(isNaN(st))return [];
   const s=new Date(st.getFullYear(),st.getMonth(),st.getDate());
   const e=new Date(j.deadline+'T00:00:00'); if(isNaN(e))return [];
-  const span=(e-s)/86400000; if(span<=60)return []; // 2개월 이하: 표시 안 함
+  const span=(e-s)/86400000; if(span<=12)return []; // 너무 짧으면 점검 의미 없음
   const fmt=t=>{const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
   const today=todayStr();
-  const cand=[
-    {date:fmt(s.getTime()+(e-s)/2), type:'중간'},
-    {date:fmt(e.getTime()-20*86400000), type:'D-20'},
-    {date:fmt(e.getTime()-10*86400000), type:'D-10'},
-  ];
+  const minDate=fmt(s.getTime()+2*86400000); // 시작 직후는 제외
+  const cand=[];
+  if(span>30) cand.push({date:fmt(s.getTime()+(e-s)/2), type:'중간'}); // 중간은 한 달 초과 작업
+  if(span>22) cand.push({date:fmt(e.getTime()-20*86400000), type:'D-20'});
+  if(span>12) cand.push({date:fmt(e.getTime()-10*86400000), type:'D-10'});
   const seen=new Set(), out=[];
-  for(const c of cand){ if(c.date<today||c.date>=j.deadline||seen.has(c.date))continue; seen.add(c.date); out.push(c); }
+  for(const c of cand){ if(c.date<today||c.date>=j.deadline||c.date<minDate||seen.has(c.date))continue; seen.add(c.date); out.push(c); }
+  out.sort((a,b)=>a.date<b.date?-1:1);
   return out;
 }
 function confirmMap(){ const m={}; jobs.forEach(j=>{ confirmDates(j).forEach(c=>{ (m[c.date]=m[c.date]||[]).push({job:j,type:c.type}); }); }); return m; }
