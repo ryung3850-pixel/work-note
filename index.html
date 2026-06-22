@@ -371,8 +371,12 @@
   .cal-cell.today .cal-num{background:var(--accent);color:var(--on-accent);font-weight:700}
   .cal-task{font-size:10px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;background:var(--accent-soft);color:var(--accent-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
   .cal-task.done{opacity:.5;text-decoration:line-through}
+  .cal-task.hi{background:var(--accent);color:var(--on-accent);font-weight:600;box-shadow:0 1px 5px -1px color-mix(in srgb,var(--accent) 55%,transparent)}
+  .cal-confirm{font-size:9.5px;line-height:1.3;padding:1px 5px;margin-top:3px;border-radius:5px;border:1px dashed var(--line);color:var(--muted);background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
+  .cal-cdot{display:none;position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:transparent;border:1.5px dashed var(--muted)}
   .cal-more{font-size:9.5px;color:var(--muted);margin-top:2px;padding-left:4px}
   .cal-dot{display:none;position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+  .cal-cell.hi .cal-dot{width:8px;height:8px;box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--accent) 45%,transparent)}
   .cal-legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:12px;font-size:11px;color:var(--muted)}
   .cal-legend .lg{width:15px;height:15px;border-radius:4px;border:1px solid var(--line-soft)}
   .legend-reset{margin-left:auto;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
@@ -382,6 +386,7 @@
   .day-panel .dsum{font-size:12px;color:var(--muted);margin-bottom:14px}
   .day-add{width:100%;margin-bottom:14px;padding:9px;border:1px dashed var(--line);border-radius:9px;background:transparent;color:var(--ink-soft);font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.14s}
   .day-add:hover{border-color:var(--accent);border-style:solid;color:var(--accent-text);background:var(--accent-soft)}
+  .cf-note{margin-bottom:12px;padding:8px 11px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:12px;line-height:1.5}
   .day-list{display:flex;flex-direction:column;gap:8px}
   .day-list .job{grid-template-columns:auto minmax(0,1fr);gap:10px;padding:14px 16px}
   .day-list .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 10px;margin-top:4px;white-space:normal}
@@ -555,7 +560,7 @@
     .j-side{grid-column:2;align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:10px;margin-top:2px}
     .modal-body{grid-template-columns:1fr}
     .cal-cell{min-height:46px;padding-top:6px;align-items:center} .cal-num{width:28px;height:28px;font-size:13px}
-    .cal-task,.cal-more{display:none} .cal-dot{display:block}
+    .cal-task,.cal-more,.cal-confirm{display:none} .cal-dot{display:block} .cal-cell.hi .cal-dot{display:block} .cal-cdot{display:block}
     .brand h1{font-size:24px}
     .theme-pop{position:fixed;top:62px;right:12px;left:auto}
     .timer-bar{left:10px;right:10px;bottom:12px;transform:translateY(28px);max-width:none;gap:10px;padding:11px 13px;flex-wrap:wrap}
@@ -791,18 +796,39 @@ function renderList(){ let arr=filter==='전체'?jobs:jobs.filter(j=>filter==='�
   el.innerHTML=arr.map(jobCard).join(''); }
 
 /* calendar */
+function confirmDates(j){
+  if(!j||!j.deadline||j.status==='완료'||j.status==='취소')return [];
+  if(!j.created)return [];
+  const st=new Date(j.created); if(isNaN(st))return [];
+  const s=new Date(st.getFullYear(),st.getMonth(),st.getDate());
+  const e=new Date(j.deadline+'T00:00:00'); if(isNaN(e))return [];
+  const span=(e-s)/86400000; if(span<=60)return []; // 2개월 이하: 표시 안 함
+  const fmt=t=>{const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  const today=todayStr();
+  const cand=[
+    {date:fmt(s.getTime()+(e-s)/2), type:'중간'},
+    {date:fmt(e.getTime()-20*86400000), type:'D-20'},
+    {date:fmt(e.getTime()-10*86400000), type:'D-10'},
+  ];
+  const seen=new Set(), out=[];
+  for(const c of cand){ if(c.date<today||c.date>=j.deadline||seen.has(c.date))continue; seen.add(c.date); out.push(c); }
+  return out;
+}
+function confirmMap(){ const m={}; jobs.forEach(j=>{ confirmDates(j).forEach(c=>{ (m[c.date]=m[c.date]||[]).push({job:j,type:c.type}); }); }); return m; }
 function heatColor(secs){ if(!secs||secs<0)return 'transparent'; const h=secs/3600; let p; if(h<0.5)p=6; else if(h<1)p=11; else if(h<2)p=18; else if(h<4)p=27; else p=38; return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`; }
 function renderCal(){
   const {y,m}=calMonth, first=new Date(y,m,1), startDow=first.getDay(), days=new Date(y,m+1,0).getDate();
-  const dows=['일','월','화','수','목','금','토'], tStr=todayStr(), dmap=dailySecsMap();
+  const dows=['일','월','화','수','목','금','토'], tStr=todayStr(), dmap=dailySecsMap(), cmap=confirmMap();
   if(!calSel || calSel.slice(0,7)!==`${y}-${String(m+1).padStart(2,'0')}`){ /* keep */ }
   let cells='';
   for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell blank"></div>`;
   for(let d=1;d<=days;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, dow=(startDow+d-1)%7;
-    const dj=jobs.filter(j=>j.deadline===ds), sec=dmap[ds]||0;
-    cells+=`<div class="cal-cell ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="selectDay('${ds}')">
-      <div class="cal-num">${d}</div>${dj.slice(0,2).map(j=>`<div class="cal-task ${(j.status==='완료'||j.status==='취소')?'done':''}" title="${esc(j.title)}">${esc(j.title)}</div>`).join('')}${dj.length>2?`<div class="cal-more">+${dj.length-2}</div>`:''}${dj.length?`<span class="cal-dot"></span>`:''}</div>`;
+    const dj=jobs.filter(j=>j.deadline===ds), sec=dmap[ds]||0, cf=cmap[ds]||[];
+    const hiDay=dj.some(j=>j.priority==='높음'&&j.status!=='완료'&&j.status!=='취소');
+    const djs=dj.slice().sort((a,b)=>{ const ap=(a.priority==='높음'&&a.status!=='완료'&&a.status!=='취소')?0:1, bp=(b.priority==='높음'&&b.status!=='완료'&&b.status!=='취소')?0:1; return ap-bp; });
+    cells+=`<div class="cal-cell ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${hiDay?'hi':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="selectDay('${ds}')">
+      <div class="cal-num">${d}</div>${djs.slice(0,2).map(j=>{ const done=(j.status==='완료'||j.status==='취소'); const hi=j.priority==='높음'&&!done; return `<div class="cal-task ${done?'done':''} ${hi?'hi':''}" title="${esc(j.title)}">${hi?'★ ':''}${esc(j.title)}</div>`; }).join('')}${djs.length>2?`<div class="cal-more">+${djs.length-2}</div>`:''}${cf.slice(0,2).map(c=>`<div class="cal-confirm" title="${c.type} 컨펌: ${esc(c.job.title)}">◌ ${c.type} · ${esc(c.job.title)}</div>`).join('')}${cf.length>2?`<div class="cal-more">+${cf.length-2} 컨펌</div>`:''}${dj.length?`<span class="cal-dot"></span>`:cf.length?`<span class="cal-cdot"></span>`:''}</div>`;
   }
   document.getElementById('calView').innerHTML=`
     <div class="cal-card">
@@ -823,10 +849,12 @@ function renderDayPanel(){
   const el=document.getElementById('dayPanel'); if(!el)return;
   const ds=calSel||todayStr(); const dt=new Date(ds); const dows=['일','월','화','수','목','금','토'];
   const dayJobs=sortJobs(jobs.filter(j=>j.deadline===ds)); const sec=Math.max(0,dailySecsMap()[ds]||0);
+  const cfList=confirmMap()[ds]||[];
   el.className='day-panel';
   el.innerHTML=`<h3>${dt.getMonth()+1}월 ${dt.getDate()}일 (${dows[dt.getDay()]})</h3>
     <div class="dsum">이 날 작업시간 ${fmtHM(sec)} · 마감 ${dayJobs.length}건</div>
     <button class="day-add" onclick="openForm(null,'${ds}')">＋ 이 날 작업 추가</button>
+    ${cfList.length?`<div class="cf-note">${cfList.map(c=>`◌ ${c.type} 컨펌 권장 · ${esc(c.job.title)}`).join('<br>')}</div>`:''}
     ${dayJobs.length?`<div class="day-list">${dayJobs.map(jobCard).join('')}</div>`:`<div class="empty" style="padding:24px"><div>이 날짜에 마감인 작업이 없어요.</div></div>`}`;
 }
 
