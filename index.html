@@ -364,6 +364,9 @@
   .cal-dow.sun{color:var(--sun)} .cal-dow.sat{color:var(--sat)}
   .cal-cell{position:relative;min-height:86px;min-width:0;overflow:hidden;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;padding:6px 5px 5px;transition:.12s;border:1px solid transparent}
   .cal-cell.blank{cursor:default}
+  .cal-cell.other{opacity:.4}
+  .cal-cell.other .cal-num{color:var(--muted);font-weight:400}
+  .cal-cell.other:hover{opacity:.7}
   .cal-cell:not(.blank):hover{border-color:var(--line)}
   .cal-cell.sel{border-color:var(--accent-text);box-shadow:0 0 0 1px var(--accent) inset}
   .cal-num{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:14px;font-weight:500;color:var(--ink);align-self:center;flex-shrink:0}
@@ -831,17 +834,21 @@ function heatColor(secs){ if(!secs||secs<0)return 'transparent'; const h=secs/36
 function renderCal(){
   const {y,m}=calMonth, first=new Date(y,m,1), startDow=first.getDay(), days=new Date(y,m+1,0).getDate();
   const dows=['일','월','화','수','목','금','토'], tStr=todayStr(), dmap=dailySecsMap(), cmap=confirmMap();
-  if(!calSel || calSel.slice(0,7)!==`${y}-${String(m+1).padStart(2,'0')}`){ /* keep */ }
-  let cells='';
-  for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell blank"></div>`;
-  for(let d=1;d<=days;d++){
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, dow=(startDow+d-1)%7;
+  const pad=n=>String(n).padStart(2,'0');
+  function cell(yy,mm,dd,other){
+    const ds=`${yy}-${pad(mm+1)}-${pad(dd)}`, dow=new Date(yy,mm,dd).getDay();
     const dj=jobs.filter(j=>j.deadline===ds), sec=dmap[ds]||0, cf=cmap[ds]||[];
     const hiDay=dj.some(j=>j.priority==='높음'&&j.status!=='완료'&&j.status!=='취소');
     const djs=dj.slice().sort((a,b)=>{ const ap=(a.priority==='높음'&&a.status!=='완료'&&a.status!=='취소')?0:1, bp=(b.priority==='높음'&&b.status!=='완료'&&b.status!=='취소')?0:1; return ap-bp; });
-    cells+=`<div class="cal-cell ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${hiDay?'hi':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="selectDay('${ds}')">
-      <div class="cal-num">${d}</div>${djs.slice(0,2).map(j=>{ const done=(j.status==='완료'||j.status==='취소'); const hi=j.priority==='높음'&&!done; return `<div class="cal-task ${done?'done':''} ${hi?'hi':''}" title="${esc(j.title)}">${hi?'★ ':''}${esc(j.title)}</div>`; }).join('')}${djs.length>2?`<div class="cal-more">+${djs.length-2}</div>`:''}${cf.slice(0,2).map(c=>`<div class="cal-confirm" title="${c.type} 컨펌: ${esc(c.job.title)}">◌ ${c.type} · ${esc(c.job.title)}</div>`).join('')}${cf.length>2?`<div class="cal-more">+${cf.length-2} 컨펌</div>`:''}${dj.length?`<span class="cal-dot"></span>`:cf.length?`<span class="cal-cdot"></span>`:''}</div>`;
+    const click=other?`jumpDay('${ds}')`:`selectDay('${ds}')`;
+    return `<div class="cal-cell ${other?'other':''} ${ds===tStr?'today':''} ${ds===calSel?'sel':''} ${hiDay?'hi':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" style="background:${heatColor(sec)}" onclick="${click}">
+      <div class="cal-num">${dd}</div>${djs.slice(0,2).map(j=>{ const done=(j.status==='완료'||j.status==='취소'); const hi=j.priority==='높음'&&!done; return `<div class="cal-task ${done?'done':''} ${hi?'hi':''}" title="${esc(j.title)}">${hi?'★ ':''}${esc(j.title)}</div>`; }).join('')}${djs.length>2?`<div class="cal-more">+${djs.length-2}</div>`:''}${cf.slice(0,2).map(c=>`<div class="cal-confirm" title="${c.type} 컨펌: ${esc(c.job.title)}">◌ ${c.type} · ${esc(c.job.title)}</div>`).join('')}${cf.length>2?`<div class="cal-more">+${cf.length-2} 컨펌</div>`:''}${dj.length?`<span class="cal-dot"></span>`:cf.length?`<span class="cal-cdot"></span>`:''}</div>`;
   }
+  let cells='';
+  if(startDow>0){ const pd=new Date(y,m,0).getDate(), py=m===0?y-1:y, pm=m===0?11:m-1; for(let i=startDow-1;i>=0;i--) cells+=cell(py,pm,pd-i,true); }
+  for(let d=1;d<=days;d++) cells+=cell(y,m,d,false);
+  const used=startDow+days, tail=(7-(used%7))%7, ny=m===11?y+1:y, nm=m===11?0:m+1;
+  for(let d=1;d<=tail;d++) cells+=cell(ny,nm,d,true);
   document.getElementById('calView').innerHTML=`
     <div class="cal-card">
       <div class="cal-head"><div class="m">${y}년 ${m+1}월</div><button class="navbtn" onclick="moveMonth(-1)">‹</button><button class="navbtn" onclick="moveMonth(1)">›</button><button class="today-btn" onclick="goToday()">오늘</button></div>
@@ -855,6 +862,7 @@ function clearAllSessions(){ if(!sessions.length){ toast('지울 작업시간 �
   if(!confirm('달력의 작업시간 색칠 기록(측정·입력된 시간 로그)을 모두 지울까요?\\n각 작업 카드에 저장된 시간과 금액은 그대로 남아요.'))return;
   sessions=[]; saveSessions(); render(); toast('작업시간 기록을 모두 지웠어요'); }
 function selectDay(ds){ calSel=ds; renderCal(); }
+function jumpDay(ds){ const y=+ds.slice(0,4), m=+ds.slice(5,7)-1; calMonth={y,m}; calSel=ds; renderCal(); }
 function goToday(){ calMonth={y:new Date().getFullYear(),m:new Date().getMonth()}; calSel=todayStr(); renderCal(); }
 function moveMonth(delta){ let{y,m}=calMonth; m+=delta; if(m<0){m=11;y--;} if(m>11){m=0;y++;} calMonth={y,m}; renderCal(); }
 function renderDayPanel(){
